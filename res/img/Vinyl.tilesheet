@@ -1,0 +1,40 @@
+{ "frames": [
+   {
+    "filename": "Vinyl 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 420, "h": 420 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 420, "h": 420 },
+    "sourceSize": { "w": 420, "h": 420 },
+    "duration": 180
+   },
+   {
+    "filename": "Vinyl 1.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 420, "h": 420 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 420, "h": 420 },
+    "sourceSize": { "w": 420, "h": 420 },
+    "duration": 180
+   },
+   {
+    "filename": "Vinyl 2.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 420, "h": 420 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 420, "h": 420 },
+    "sourceSize": { "w": 420, "h": 420 },
+    "duration": 180
+   }
+ ],
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.2.25-x64",
+  "image": "Vinyl.png",
+  "format": "RGBA8888",
+  "size": { "w": 420, "h": 420 },
+  "scale": "1",
+  "frameTags": [
+  ]
+ }
+}

@@ -1,0 +1,40 @@
+{ "frames": [
+   {
+    "filename": "Viny_highlightsl 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 420, "h": 420 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 420, "h": 420 },
+    "sourceSize": { "w": 420, "h": 420 },
+    "duration": 180
+   },
+   {
+    "filename": "Viny_highlightsl 1.aseprite",
+    "frame": { "x": 421, "y": 0, "w": 420, "h": 420 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 420, "h": 420 },
+    "sourceSize": { "w": 420, "h": 420 },
+    "duration": 180
+   },
+   {
+    "filename": "Viny_highlightsl 2.aseprite",
+    "frame": { "x": 0, "y": 421, "w": 420, "h": 420 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 420, "h": 420 },
+    "sourceSize": { "w": 420, "h": 420 },
+    "duration": 180
+   }
+ ],
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.2.25-x64",
+  "image": "Viny_highlightsl.png",
+  "format": "RGBA8888",
+  "size": { "w": 841, "h": 841 },
+  "scale": "1",
+  "frameTags": [
+  ]
+ }
+}

@@ -1,5 +1,6 @@
 package entities;
 
+import h2d.Graphics;
 import h2d.RenderContext;
 import h2d.Bitmap;
 import entity.Entity2D;
@@ -15,12 +16,13 @@ class LaneMarker extends Object {
 		super(parent);
 		par = parent;
 		this.radius = radius;
-		var marker = new Bitmap(hxd.Res.img.lanemarker.toTile(), this);
+		var marker = hxd.Res.img.lanemarker_tilesheet.toSprite2D(this);
+		marker.animation.play("Loop");
 		this.progress = progress;
-		marker.x = -marker.tile.width * 0.5;
-		marker.y = -marker.tile.height * 0.5;
-	}
-
+		marker.x = Std.int(-15 * 0.5);
+		marker.y = Std.int(-32);
+    }
+    
 	override function onRemove() {
 		super.onRemove();
 		par.removeMarker(this);
@@ -36,7 +38,10 @@ class LaneMarker extends Object {
 }
 
 class Lane extends Entity2D {
-	var radius:Float;
+    var radius:Float;
+	var width = 64.;
+
+	var highlightCircle:Graphics;
 
 	public var markers:Array<LaneMarker>;
 
@@ -46,10 +51,15 @@ class Lane extends Entity2D {
 
 	public var onLanePass:LaneMarker->Void;
 
-	public function new(?parent, radius) {
+	public function new(?parent, radius, width, background) {
 		super(parent);
 		this.radius = radius;
-		markers = [];
+        markers = [];
+		highlightCircle = new Graphics(background);
+		highlightCircle.lineStyle(width, 0xFFFFFF, 0.2);
+		highlightCircle.drawCircle(0, 0, radius + width * 0.5);
+
+		highlight(false);
 	}
 
 	public function removeMarker(m) {
@@ -85,5 +95,12 @@ class Lane extends Entity2D {
 		}
 
 		return null;
+    }
+	public function highlight(enable) {
+		if (enable) {
+			highlightCircle.alpha = 1.0;
+		} else {
+			highlightCircle.alpha = 0.0;
+		}
 	}
 }

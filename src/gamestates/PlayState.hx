@@ -1,5 +1,6 @@
 package gamestates;
 
+import entities.Meter;
 import h2d.Object;
 import entities.DiskBoard;
 import entities.Pay;
@@ -14,6 +15,8 @@ class PlayState extends gamestate.GameState {
 
 	var board:DiskBoard;
 
+	var meter:Meter;
+
 	var container:h2d.Object;
 
 	override function onEnter() {
@@ -22,12 +25,11 @@ class PlayState extends gamestate.GameState {
 
 		board = new DiskBoard(container);
 		pay = new Pay(container);
+		meter = new Meter(container);
 	}
 
 	override function onEvent(e:Event) {
-		if (e.kind == EPush) {
-			game.sound.playWobble(hxd.Res.sound.click);
-		}
+		board.onEvent(e);
 	}
 
 	var time = 0.0;
@@ -35,11 +37,15 @@ class PlayState extends gamestate.GameState {
 	override function update(dt:Float) {
 		super.update(dt);
 		time += dt;
-		board.y = 32;
+		board.y = (game.s2d.height * 0.5) - board.radius;
 		board.x = (game.s2d.width * 0.5) - board.radius;
 
 		pay.y = 8;
 		pay.x = (game.s2d.width) * 0.95;
+		meter.x = board.x;
+		meter.y = board.y - 32;
+
+		meter.value = board.markers.length;
 	}
 
 	override function onLeave() {

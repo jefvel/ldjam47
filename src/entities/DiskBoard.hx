@@ -1,5 +1,6 @@
 package entities;
 
+import h2d.col.Point;
 import h2d.RenderContext;
 import entities.Lane.LaneMarker;
 import h2d.Bitmap;
@@ -17,12 +18,26 @@ class DiskBoard extends Entity2D {
 
 	var buttons:Object;
 
-	var lanes:Array<Lane>;
-	var laneContainer:Object;
+    var lanes:Array<Lane>;
+	var laneBackground:Object;
+    var laneContainer:Object;
+    
+	var game:Game;
+
+	var startRadius = 35.;
+	var laneWidth = 32.;
+
+	public var markers:Array<LaneMarker>;
 
 	public function new(?parent) {
         super(parent);
-		disk = new Graphics(this);
+        disk = new Graphics(this);
+        
+		game = Game.getInstance();
+		markers = [];
+
+		laneBackground = new Object(this);
+		laneBackground.x = laneBackground.y = radius;
 
 		laneContainer = new Object(this);
 		laneContainer.x = laneContainer.y = radius;
@@ -34,12 +49,15 @@ class DiskBoard extends Entity2D {
 		disk.drawCircle(0, 0, radius);
 		disk.x = disk.y = radius;
 
-		var r = 35;
+		var r = startRadius;
+        
+		laneContainer.filter = new h2d.filter.DropShadow(0, 0, 0x222222);
 
 		for (i in 0...laneCount) {
-			var lane = new entities.Lane(laneContainer, r);
+			var lane = new entities.Lane(laneContainer, r, laneWidth, laneBackground);
 			lanes.push(lane);
 
+			/*
 			var button = new Interactive(32, 64, buttons);
 			var bm = new Bitmap(hxd.Res.img.musicmarker.toTile(), button);
 			button.x = radius - 16;
@@ -51,15 +69,16 @@ class DiskBoard extends Entity2D {
 
 			button.onRelease = e -> {
 				lane.speed = 1.0;
-			}
+            }
+			 */
 
-			lane.onLanePass = m -> {}
-
-			r += 32;
+			r += laneWidth;
 		}
 	}
 
-	var t = 0.;
+    var t = 0.;
+    
+	var hoveredLaneIndex = -1;
 
 	function combine(markers:Array<LaneMarker>) {
 		for (m in markers) {
@@ -68,11 +87,29 @@ class DiskBoard extends Entity2D {
 
 		var c = new CombinedMarker(laneContainer, markers);
     }
+
+	var slowingLane = null;
+
+	public function onEvent(e:hxd.Event) {
+		if (e.kind == EPush) {
+			if (hoveredLaneIndex != -1) {
+				slowingLane = lanes[hoveredLaneIndex];
+				slowingLane.speed = 0.5;
+			}
+		}
+
+		if (e.kind == ERelease) {
+			if (slowingLane != null) {
+				slowingLane.speed = 1.0;
+				slowingLane = null;
+			}
+		}
+	}
     
 	override function update(dt:Float) {
         t += dt;
 
-		var spawnTime = 4.0;
+		var spawnTime = 3.36;
 
 		if (t > spawnTime) {
 			t -= spawnTime;
@@ -80,10 +117,17 @@ class DiskBoard extends Entity2D {
 				var r = 0.2 * Math.random();
 				l.addMarker(r);
 			}
+        }
+        
+		markers.splice(0, markers.length);
+		for (l in lanes) {
+			for (m in l.markers) {
+				markers.push(m);
+			}
 		}
 
+		/// Check if markers form rows
 		var lane = lanes[0];
-
 		for (marker in lane.markers) {
 			var markers = [marker];
 			for (l in lanes) {
@@ -100,6 +144,35 @@ class DiskBoard extends Entity2D {
 			if (markers.length == laneCount) {
 				combine(markers);
 			}
+        }
+		// Check which row cursor is over
+		var d = new Point(game.s2d.mouseX, game.s2d.mouseY);
+		d.x -= (this.x + radius);
+		d.y -= (this.y + radius);
+
+		var distance = d.length();
+		distance -= startRadius;
+
+		if (distance < 0) {
+			hoveredLaneIndex = -1;
+		} else {
+			var index = Std.int(distance / laneWidth);
+			if (index >= lanes.length) {
+				hoveredLaneIndex = -1;
+			} else {
+				hoveredLaneIndex = index;
+			}
 		}
-	}
+
+		for (i in 0...lanes.length) {
+			var highlight = false;
+			if (slowingLane != null) {
+				highlight = slowingLane == lanes[i];
+			} else {
+				highlight = i == hoveredLaneIndex;
+			}
+
+			lanes[i].highlight(highlight);
+		}
+    }
 }

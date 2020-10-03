@@ -1,0 +1,140 @@
+{ "frames": [
+   {
+    "filename": "lanemarker 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 180
+   },
+   {
+    "filename": "lanemarker 1.aseprite",
+    "frame": { "x": 16, "y": 0, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 150
+   },
+   {
+    "filename": "lanemarker 2.aseprite",
+    "frame": { "x": 32, "y": 0, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 130
+   },
+   {
+    "filename": "lanemarker 3.aseprite",
+    "frame": { "x": 0, "y": 33, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "lanemarker 4.aseprite",
+    "frame": { "x": 16, "y": 33, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 100
+   },
+   {
+    "filename": "lanemarker 5.aseprite",
+    "frame": { "x": 32, "y": 33, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 100
+   },
+   {
+    "filename": "lanemarker 6.aseprite",
+    "frame": { "x": 0, "y": 66, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 130
+   },
+   {
+    "filename": "lanemarker 7.aseprite",
+    "frame": { "x": 16, "y": 66, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 180
+   },
+   {
+    "filename": "lanemarker 8.aseprite",
+    "frame": { "x": 0, "y": 66, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 130
+   },
+   {
+    "filename": "lanemarker 9.aseprite",
+    "frame": { "x": 32, "y": 33, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 100
+   },
+   {
+    "filename": "lanemarker 10.aseprite",
+    "frame": { "x": 16, "y": 33, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 100
+   },
+   {
+    "filename": "lanemarker 11.aseprite",
+    "frame": { "x": 0, "y": 33, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "lanemarker 12.aseprite",
+    "frame": { "x": 32, "y": 0, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 130
+   },
+   {
+    "filename": "lanemarker 13.aseprite",
+    "frame": { "x": 16, "y": 0, "w": 15, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 15, "h": 32 },
+    "sourceSize": { "w": 15, "h": 32 },
+    "duration": 150
+   }
+ ],
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.2.25-x64",
+  "image": "lanemarker.png",
+  "format": "RGBA8888",
+  "size": { "w": 47, "h": 98 },
+  "scale": "1",
+  "frameTags": [
+   { "name": "Loop", "from": 0, "to": 13, "direction": "forward" }
+  ]
+ }
+}
