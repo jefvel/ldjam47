@@ -1,6 +1,6 @@
 { "frames": [
    {
-    "filename": "Viny_highlightsl 0.aseprite",
+    "filename": "Vinyl_highlights 0.aseprite",
     "frame": { "x": 0, "y": 0, "w": 420, "h": 420 },
     "rotated": false,
     "trimmed": false,
@@ -9,7 +9,7 @@
     "duration": 180
    },
    {
-    "filename": "Viny_highlightsl 1.aseprite",
+    "filename": "Vinyl_highlights 1.aseprite",
     "frame": { "x": 421, "y": 0, "w": 420, "h": 420 },
     "rotated": false,
     "trimmed": false,
@@ -18,7 +18,7 @@
     "duration": 180
    },
    {
-    "filename": "Viny_highlightsl 2.aseprite",
+    "filename": "Vinyl_highlights 2.aseprite",
     "frame": { "x": 0, "y": 421, "w": 420, "h": 420 },
     "rotated": false,
     "trimmed": false,
@@ -30,7 +30,7 @@
  "meta": {
   "app": "http://www.aseprite.org/",
   "version": "1.2.25-x64",
-  "image": "Viny_highlightsl.png",
+  "image": "Vinyl_highlights.png",
   "format": "RGBA8888",
   "size": { "w": 841, "h": 841 },
   "scale": "1",
