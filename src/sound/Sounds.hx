@@ -55,9 +55,9 @@ class Sounds {
 	 * @param snd
 	 * @param volume = 0.3
 	 */
-	public function playWobble(snd:hxd.res.Sound, volume = 0.3) {
+	public function playWobble(snd:hxd.res.Sound, volume = 0.3, wobbleAmount = 0.1) {
 		var sound = snd.play(false, volume, sfxChannel);
-		sound.addEffect(new hxd.snd.effect.Pitch(0.9 + Math.random() * 0.2));
+		sound.addEffect(new hxd.snd.effect.Pitch(1 - wobbleAmount + Math.random() * (wobbleAmount * 2)));
 		return sound;
 	}
 }

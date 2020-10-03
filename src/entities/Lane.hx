@@ -42,6 +42,7 @@ class Lane extends Entity2D {
     var radius:Float;
 	var width = 64.;
 
+	public var index = 0;
 	var highlightCircle:Graphics;
 	var boundaryCircle:Graphics;
 	

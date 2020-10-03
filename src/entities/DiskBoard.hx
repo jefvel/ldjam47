@@ -34,8 +34,10 @@ class DiskBoard extends Entity2D {
 	var startRadius:Float;
 	var laneWidth:Float;
 
-	public var markers:Array<LaneMarker>;
-
+    public var markers:Array<LaneMarker>;
+    
+	public var onActivateLane:(Lane, Bool) -> Void;
+    
 	public function new(?parent) {
         super(parent);
 		disk = new Graphics(this);
@@ -71,7 +73,8 @@ class DiskBoard extends Entity2D {
 
 		var r = startRadius;
 		for (i in 0...laneCount) {
-			var lane = new entities.Lane(laneContainer, r, laneWidth, laneBackground);
+            var lane = new entities.Lane(laneContainer, r, laneWidth, laneBackground);
+			lane.index = i;
 			lanes.push(lane);
 
 			/*
@@ -110,14 +113,20 @@ class DiskBoard extends Entity2D {
 	public function onEvent(e:hxd.Event) {
 		if (e.kind == EPush) {
 			if (hoveredLaneIndex != -1) {
-				slowingLane = lanes[hoveredLaneIndex];
-				slowingLane.speed = 0.5;
+                slowingLane = lanes[hoveredLaneIndex];
+				slowingLane.speed = -0.5;
+				if (onActivateLane != null) {
+					onActivateLane(slowingLane, true);
+				}
 			}
 		}
 
 		if (e.kind == ERelease) {
 			if (slowingLane != null) {
 				slowingLane.speed = 1.0;
+				if (onActivateLane != null) {
+					onActivateLane(slowingLane, false);
+				}
 				slowingLane = null;
 			}
 		}
