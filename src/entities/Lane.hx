@@ -32,8 +32,9 @@ class LaneMarker extends Object {
 		super.sync(ctx);
 		var p = Math.PI * progress;
 		rotation = p;
-		x = Math.cos(p - Math.PI * 0.5) * radius;
-		y = Math.sin(p - Math.PI * 0.5) * radius;
+		var a = p - Math.PI * 0.5;
+		x = Math.cos(a) * radius;
+		y = Math.sin(a) * radius;
 	}
 }
 
@@ -43,6 +44,9 @@ class Lane extends Entity2D {
 
 	public var index = 0;
 	var highlightCircle:Graphics;
+	var boundaryCircle:Graphics;
+	
+	var boundaryCircleThickness = 2;
 
 	public var markers:Array<LaneMarker>;
 
@@ -57,8 +61,12 @@ class Lane extends Entity2D {
 		this.radius = radius;
         markers = [];
 		highlightCircle = new Graphics(background);
-		highlightCircle.lineStyle(width, 0xFFFFFF, 0.2);
+		highlightCircle.lineStyle(width, 0xBBFFBB, 0.2);
 		highlightCircle.drawCircle(0, 0, radius + width * 0.5);
+
+		boundaryCircle = new Graphics(background);
+		boundaryCircle.lineStyle(2, 0xBBFFBB, 0.1);
+		boundaryCircle.drawCircle(0, 0, radius + width);
 
 		highlight(false);
 	}
