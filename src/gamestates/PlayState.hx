@@ -1,5 +1,9 @@
 package gamestates;
 
+import entities.Handle;
+import entities.Buttons;
+import entities.Lane;
+import entities.Hand;
 import entities.Meter;
 import h2d.Object;
 import entities.DiskBoard;
@@ -19,6 +23,12 @@ class PlayState extends gamestate.GameState {
 
 	var container:h2d.Object;
 
+	var hand:Hand;
+
+	var buttons:Buttons;
+
+	var handle:Handle;
+
 	override function onEnter() {
 		super.onEnter();
 		container = new Object(game.s2d);
@@ -26,6 +36,25 @@ class PlayState extends gamestate.GameState {
 		board = new DiskBoard(container);
 		pay = new Pay(container);
 		meter = new Meter(container);
+		buttons = new Buttons(container, board.laneCount);
+		buttons.x = 90;
+		buttons.y = 82;
+
+		handle = new Handle(container);
+
+		hand = new Hand(container);
+
+		board.onActivateLane = onActivateLane;
+	}
+
+	function onActivateLane(lane:Lane, activated) {
+		if (activated) {
+			var p = buttons.getButtonPos(lane.index);
+			hand.push(p.x, p.y);
+		} else {
+			buttons.releaseButtons();
+			hand.releasePush();
+		}
 	}
 
 	override function onEvent(e:Event) {
@@ -44,6 +73,9 @@ class PlayState extends gamestate.GameState {
 		pay.x = (game.s2d.width) * 0.95;
 		meter.x = board.x;
 		meter.y = board.y - 32;
+
+		handle.x = game.s2d.width - 320;
+		handle.y = 150;
 
 		meter.value = board.markers.length;
 	}
