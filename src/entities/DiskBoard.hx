@@ -1,5 +1,6 @@
 package entities;
 
+import hxd.Res;
 import h2d.col.Point;
 import h2d.RenderContext;
 import entities.Lane.LaneMarker;
@@ -12,9 +13,14 @@ import entity.Entity2D;
 class DiskBoard extends Entity2D {
 	public var laneCount = 3;
 
-	public var radius = 128;
+	public var radius = 172;
+
+	public var vinylSpriteScale = 0.85;
 
 	var disk:Graphics;
+
+	var vinyl:Object;
+	var vinylHighlights:Object;
 
 	var buttons:Object;
 
@@ -24,14 +30,20 @@ class DiskBoard extends Entity2D {
     
 	var game:Game;
 
-	var startRadius = 35.;
-	var laneWidth = 32.;
+	var startRadius:Float;
+	var laneWidth:Float;
 
 	public var markers:Array<LaneMarker>;
 
 	public function new(?parent) {
         super(parent);
-        disk = new Graphics(this);
+		disk = new Graphics(this);
+		
+		vinyl = Res.img.Vinyl_tilesheet.toSprite2D(this);
+		vinylHighlights = Res.img.Vinyl_highlights_tilesheet.toSprite2D(this);
+
+		laneWidth = radius * 0.25;
+		startRadius = laneWidth;
         
 		game = Game.getInstance();
 		markers = [];
@@ -48,6 +60,9 @@ class DiskBoard extends Entity2D {
 		disk.beginFill(0x333333);
 		disk.drawCircle(0, 0, radius);
 		disk.x = disk.y = radius;
+
+		vinyl.x = vinyl.y = vinylHighlights.x = vinylHighlights.y = -0.025*radius;
+		vinyl.scaleX = vinyl.scaleY = vinylHighlights.scaleX = vinylHighlights.scaleY = vinylSpriteScale;
 
 		var r = startRadius;
         

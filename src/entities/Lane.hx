@@ -9,6 +9,7 @@ import h2d.Object;
 class LaneMarker extends Object {
 	public var progress = 0.0;
 	public var radius = 0.0;
+	public var radiusOffset = 9;
 
 	var par:Lane;
 
@@ -32,8 +33,10 @@ class LaneMarker extends Object {
 		super.sync(ctx);
 		var p = Math.PI * progress;
 		rotation = p;
-		x = Math.cos(p - Math.PI * 0.5) * radius;
-		y = Math.sin(p - Math.PI * 0.5) * radius;
+		var vx = Math.cos(p - Math.PI * 0.5);
+		var vy = Math.sin(p - Math.PI * 0.5);
+		x = vx * (radius + radiusOffset);
+		y = vy * (radius + radiusOffset);
 	}
 }
 
