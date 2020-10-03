@@ -77,8 +77,9 @@ class Lane extends Entity2D {
 	 * returns marker closest to the specified progress point
 	 */
 	public function getClosestMarker(progress:Float) {
+		progress = progress % 2.0;
 		for (m in markers) {
-			if (Math.abs(m.progress - progress) < threshold) {
+			if (Math.abs(m.progress % 2.0 - progress) < threshold) {
 				return m;
 			}
 		}

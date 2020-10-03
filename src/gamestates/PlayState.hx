@@ -32,7 +32,7 @@ class PlayState extends gamestate.GameState {
 		super.update(dt);
 		time += dt;
 		board.y = 32;
-		board.x = (game.s2d.width - board.getBounds().width) * 0.5;
+		board.x = (game.s2d.width * 0.5) - board.radius;
 	}
 
 	override function onLeave() {

@@ -13,6 +13,7 @@ class CombinedMarker extends Entity2D {
 		super(parent);
         this.markers = markers;
         for (m in markers) {
+			m.progress = m.progress % 2.0;
             addChild(m);
         }
 
@@ -41,7 +42,9 @@ class CombinedMarker extends Entity2D {
         }
 
         if (time >= 1.0) {
-            alpha -= 0.03;
+			x += Math.cos((c - 0.5) * Math.PI) * 1.1;
+			y += Math.sin((c - 0.5) * Math.PI) * 1.1;
+			alpha -= 0.01;
             if (alpha <= 0) {
                 remove();
             }
