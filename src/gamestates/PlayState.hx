@@ -2,12 +2,15 @@ package gamestates;
 
 import h2d.Object;
 import entities.DiskBoard;
+import entities.Pay;
 import hxd.snd.effect.Pitch;
 import hxd.snd.Channel;
 import hxd.Event;
 
 class PlayState extends gamestate.GameState {
 	public function new() {}
+
+	var pay:Pay;
 
 	var board:DiskBoard;
 
@@ -18,6 +21,7 @@ class PlayState extends gamestate.GameState {
 		container = new Object(game.s2d);
 
 		board = new DiskBoard(container);
+		pay = new Pay(container);
 	}
 
 	override function onEvent(e:Event) {
@@ -33,6 +37,9 @@ class PlayState extends gamestate.GameState {
 		time += dt;
 		board.y = 32;
 		board.x = (game.s2d.width - board.getBounds().width) * 0.5;
+
+		pay.y = 8;
+		pay.x = (game.s2d.width) * 0.95;
 	}
 
 	override function onLeave() {
