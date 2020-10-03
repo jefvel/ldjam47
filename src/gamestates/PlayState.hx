@@ -37,7 +37,7 @@ class PlayState extends gamestate.GameState {
 	override function update(dt:Float) {
 		super.update(dt);
 		time += dt;
-		board.y = (game.s2d.height * 0.5) - board.radius;
+		board.y = (game.s2d.height * 0.35) - board.radius;
 		board.x = (game.s2d.width * 0.5) - board.radius;
 
 		pay.y = 8;

@@ -1,5 +1,6 @@
 package entities;
 
+import graphics.Sprite;
 import hxd.Res;
 import h2d.col.Point;
 import h2d.RenderContext;
@@ -13,14 +14,14 @@ import entity.Entity2D;
 class DiskBoard extends Entity2D {
 	public var laneCount = 3;
 
-	public var radius = 172;
+	public var radius = 128;
 
-	public var vinylSpriteScale = 0.85;
+	public var vinylSpriteScale = 0.64;
 
 	var disk:Graphics;
 
 	var vinyl:Object;
-	var vinylHighlights:Object;
+	var vinylHighlights:Sprite;
 
 	var buttons:Object;
 
@@ -39,8 +40,8 @@ class DiskBoard extends Entity2D {
         super(parent);
 		disk = new Graphics(this);
 		
-		vinyl = Res.img.Vinyl_tilesheet.toSprite2D(this);
-		vinylHighlights = Res.img.Vinyl_highlights_tilesheet.toSprite2D(this);
+		vinyl = Res.img.Vinyl_tilesheet.toSprite2D(disk);
+		vinylHighlights = Res.img.Vinyl_highlights_tilesheet.toSprite2D(disk);
 
 		laneWidth = radius * 0.25;
 		startRadius = laneWidth;
@@ -61,13 +62,14 @@ class DiskBoard extends Entity2D {
 		disk.drawCircle(0, 0, radius);
 		disk.x = disk.y = radius;
 
-		vinyl.x = vinyl.y = vinylHighlights.x = vinylHighlights.y = -0.025*radius;
+		vinyl.x = vinyl.y = vinylHighlights.x = vinylHighlights.y = -1.05*radius;
 		vinyl.scaleX = vinyl.scaleY = vinylHighlights.scaleX = vinylHighlights.scaleY = vinylSpriteScale;
 
-		var r = startRadius;
+		vinylHighlights.animation.play("Flicker");
         
 		laneContainer.filter = new h2d.filter.DropShadow(0, 0, 0x222222);
 
+		var r = startRadius;
 		for (i in 0...laneCount) {
 			var lane = new entities.Lane(laneContainer, r, laneWidth, laneBackground);
 			lanes.push(lane);

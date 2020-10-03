@@ -35,6 +35,7 @@
   "size": { "w": 841, "h": 841 },
   "scale": "1",
   "frameTags": [
+   { "name": "Flicker", "from": 0, "to": 2, "direction": "forward" }
   ]
  }
 }

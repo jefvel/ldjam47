@@ -9,7 +9,6 @@ import h2d.Object;
 class LaneMarker extends Object {
 	public var progress = 0.0;
 	public var radius = 0.0;
-	public var radiusOffset = 9;
 
 	var par:Lane;
 
@@ -33,10 +32,9 @@ class LaneMarker extends Object {
 		super.sync(ctx);
 		var p = Math.PI * progress;
 		rotation = p;
-		var vx = Math.cos(p - Math.PI * 0.5);
-		var vy = Math.sin(p - Math.PI * 0.5);
-		x = vx * (radius + radiusOffset);
-		y = vy * (radius + radiusOffset);
+		var a = p - Math.PI * 0.5;
+		x = Math.cos(a) * radius;
+		y = Math.sin(a) * radius;
 	}
 }
 
@@ -45,6 +43,9 @@ class Lane extends Entity2D {
 	var width = 64.;
 
 	var highlightCircle:Graphics;
+	var boundaryCircle:Graphics;
+	
+	var boundaryCircleThickness = 2;
 
 	public var markers:Array<LaneMarker>;
 
@@ -59,8 +60,12 @@ class Lane extends Entity2D {
 		this.radius = radius;
         markers = [];
 		highlightCircle = new Graphics(background);
-		highlightCircle.lineStyle(width, 0xFFFFFF, 0.2);
+		highlightCircle.lineStyle(width, 0xBBFFBB, 0.2);
 		highlightCircle.drawCircle(0, 0, radius + width * 0.5);
+
+		boundaryCircle = new Graphics(background);
+		boundaryCircle.lineStyle(2, 0xBBFFBB, 0.1);
+		boundaryCircle.drawCircle(0, 0, radius + width);
 
 		highlight(false);
 	}
