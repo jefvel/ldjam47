@@ -132,13 +132,17 @@ class DiskBoard extends Entity2D {
 		}
 	}
     
+	var spawnTime = 3.36;
+
 	override function update(dt:Float) {
         t += dt;
 
-		var spawnTime = 3.36;
-
 		if (t > spawnTime) {
-			t -= spawnTime;
+            t -= spawnTime;
+			spawnTime -= 0.1;
+			if (spawnTime < 1) {
+				spawnTime = 1;
+			}
 			for (l in lanes) {
 				var r = 0.2 * Math.random();
 				l.addMarker(r);

@@ -1,5 +1,6 @@
 package entities;
 
+import gamestates.PlayState;
 import graphics.Sprite;
 import h2d.Tile;
 import h2d.Bitmap;
@@ -11,7 +12,9 @@ class BouncyBoy extends Entity2D {
 	var bm:Object;
 
 	public function new(thingToBounce:CombinedMarker, ?parent) {
-		super(parent);
+        super(parent);
+		PlayState.current.bouncyBoys.push(this);
+
 		bm = new Object(this);
 		for (i in 0...thingToBounce.markers.length) {
 			var b = hxd.Res.img.lanemarker_tilesheet.toSprite2D(bm);
@@ -27,9 +30,11 @@ class BouncyBoy extends Entity2D {
 
 		target = thingToBounce;
 
-		var b = target.getBounds();
+        var b = target.getBounds();
+
 		// x = b.x - parent.x - b.width;
-		// y = b.y - parent.y - b.height;
+        // y = b.y - parent.y - b.height;
+
 		var p = Math.PI * thingToBounce.targetRotation;
 		rotation = p;
 		p -= Math.PI * 0.5;
@@ -41,7 +46,7 @@ class BouncyBoy extends Entity2D {
 		vx = (Math.random() - 0.5) * 10;
 
 		targetRotation = -Math.PI * 1;
-		targetRotation += (Math.random() - 0.5) * Math.PI * 0.1;
+        targetRotation += (Math.random() - 0.5) * Math.PI * 0.1;
 	}
 
 	var vx = 0.;
@@ -52,14 +57,23 @@ class BouncyBoy extends Entity2D {
 
 	var xtarget = 128;
 
-	var targetRotation = 0.0;
+    var targetRotation = 0.0;
+    
+	var ejected = false;
+
+	public function eject() {
+		ejected = true;
+		vy = 10;
+	}
 
 	override function update(dt:Float) {
 		t += dt;
 
 		vx *= 0.5;
-		vy += 0.8;
-		x += (xtarget - x) * 0.05;
+        vy += 0.8;
+		if (y < 128) {
+            x += (xtarget - x) * 0.05;
+		}
 		y += vy;
 
 		var time = Math.min(t / total, 1.0);
@@ -69,10 +83,10 @@ class BouncyBoy extends Entity2D {
 
 		super.update(dt);
 		rotation += (targetRotation - rotation) * 0.1;
-		if (y > 128) {
+		if (y > 128 && !ejected) {
 			y = 128;
 			x = Math.round(x);
 			y = Math.round(y);
-		}
+        } 
 	}
 }
