@@ -1,5 +1,6 @@
 package entities;
 
+import h2d.RenderContext;
 import entities.Lane.LaneMarker;
 import h2d.Bitmap;
 import h2d.Object;
@@ -10,7 +11,7 @@ import entity.Entity2D;
 class DiskBoard extends Entity2D {
 	public var laneCount = 3;
 
-	var radius = 128;
+	public var radius = 128;
 
 	var disk:Graphics;
 
@@ -33,7 +34,7 @@ class DiskBoard extends Entity2D {
 		disk.drawCircle(0, 0, radius);
 		disk.x = disk.y = radius;
 
-		var r = 25;
+		var r = 35;
 
 		for (i in 0...laneCount) {
 			var lane = new entities.Lane(laneContainer, r);
@@ -66,10 +67,11 @@ class DiskBoard extends Entity2D {
 		}
 
 		var c = new CombinedMarker(laneContainer, markers);
-	}
-
+    }
+    
 	override function update(dt:Float) {
-		t += dt;
+        t += dt;
+
 		var spawnTime = 4.0;
 
 		if (t > spawnTime) {
