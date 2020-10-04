@@ -12,7 +12,7 @@ class BouncyBoy extends Entity2D {
 	var bm:Object;
 
 	public function new(thingToBounce:CombinedMarker, ?parent) {
-        super(parent);
+		super(PlayState.current.cage.items);
 		PlayState.current.bouncyBoys.push(this);
 
 		bm = new Object(this);
@@ -47,6 +47,7 @@ class BouncyBoy extends Entity2D {
 
 		targetRotation = -Math.PI * 1;
         targetRotation += (Math.random() - 0.5) * Math.PI * 0.1;
+		xtarget += Std.int(Math.random() * 104);
 	}
 
 	var vx = 0.;
@@ -55,7 +56,7 @@ class BouncyBoy extends Entity2D {
 	var t = 0.;
 	var total = 0.2;
 
-	var xtarget = 128;
+	var xtarget = 138;
 
     var targetRotation = 0.0;
     
@@ -63,7 +64,7 @@ class BouncyBoy extends Entity2D {
 
 	public function eject() {
 		ejected = true;
-		vy = 10;
+		vy = Math.min(10, vy);
 	}
 
 	override function update(dt:Float) {
@@ -83,8 +84,8 @@ class BouncyBoy extends Entity2D {
 
 		super.update(dt);
 		rotation += (targetRotation - rotation) * 0.1;
-		if (y > 128 && !ejected) {
-			y = 128;
+		if (y > 138 && !ejected) {
+			y = 138;
 			x = Math.round(x);
 			y = Math.round(y);
         } 

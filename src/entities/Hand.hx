@@ -54,7 +54,7 @@ class Hand extends Entity2D {
 			y = targetY - 35 + T.bounceOut(pTime) * 35;
 			gfx.y = 0;
 
-			gfx.x = Math.abs(Math.sin(time * 990.7) * 1);
+			gfx.x = (Math.sin(time * 500.7) * 1);
 		}
 	}
 }

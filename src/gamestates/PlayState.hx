@@ -1,5 +1,7 @@
 package gamestates;
 
+import h2d.Bitmap;
+import entities.Cage;
 import entities.BouncyBoy;
 import entities.Handle;
 import entities.Buttons;
@@ -30,9 +32,13 @@ class PlayState extends gamestate.GameState {
 
 	var handle:Handle;
 
+	var machineBack:Bitmap;
+
 	public static var current:PlayState;
 
 	public var bouncyBoys:Array<BouncyBoy>;
+
+	public var cage:Cage;
 
 	override function onEnter() {
 		super.onEnter();
@@ -42,6 +48,8 @@ class PlayState extends gamestate.GameState {
 
 		container = new Object(game.s2d);
 
+		machineBack = new Bitmap(hxd.Res.img.machineback.toTile(), container);
+
 		board = new DiskBoard(container);
 		pay = new Pay(container);
 		meter = new Meter(container);
@@ -50,8 +58,10 @@ class PlayState extends gamestate.GameState {
 		buttons.x = 90;
 		buttons.y = 82;
 
+		cage = new Cage(container);
+
 		handle = new Handle(container);
-		handle.show(false);
+		// handle.show(false);
 		handle.onPull = onHandlePull;
 		handle.onEndPull = onHandleRelease;
 
@@ -71,18 +81,20 @@ class PlayState extends gamestate.GameState {
 	}
 
 	var ejectingRods = false;
-	var ejectTime = 0.2;
+	var ejectTime = 0.1;
 	var currentEjectTime = 0.;
 
 	function onHandlePull() {
 		ejectingRods = true;
 		currentEjectTime = ejectTime;
 		game.sound.playWobble(hxd.Res.sound.hatchopen);
+		cage.open();
 	}
 
 	function onHandleRelease() {
 		ejectingRods = false;
 		game.sound.playWobble(hxd.Res.sound.hatchclose);
+		cage.close();
 	}
 
 	override function onEvent(e:Event) {
@@ -102,8 +114,8 @@ class PlayState extends gamestate.GameState {
 				if (r != null) {
 					r.eject();
 				} else {
-					handle.stopDrag();
-					handle.show(false);
+					// handle.stopDrag();
+					// handle.show(false);
 				}
 			}
 		}
@@ -115,8 +127,19 @@ class PlayState extends gamestate.GameState {
 		}
 
 		time += dt;
-		board.y = (game.s2d.height * 0.3) - board.radius;
+		machineBack.y = 44;
+		machineBack.x = (game.s2d.width - machineBack.tile.width) * 0.5; // buttons.x - 25;
+
+		buttons.x = machineBack.x + 20;
+		buttons.y = machineBack.y + 70;
+
+		board.y = machineBack.y - 5;
 		board.x = (game.s2d.width * 0.5) - board.radius;
+
+		cage.x = machineBack.x + 360;
+		cage.y = machineBack.y + 210;
+		cage.items.x = board.x + board.radius - cage.x;
+		cage.items.y = board.y + board.radius - cage.y;
 
 		pay.y = 8;
 		pay.x = (game.s2d.width) * 0.95;
