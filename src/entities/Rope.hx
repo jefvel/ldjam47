@@ -47,6 +47,28 @@ class Rope extends Entity2D {
 		return ps[0].p.distance(ps[ps.length - 1].p);
     }
 
+	public function getEndPoint() {
+		return points[points.length - 1];
+	}
+
+	public function getEndRotation() {
+		var ps = points;
+		var p = ps[ps.length - 1].p;
+		var p2 = ps[ps.length - 2].p;
+
+		var a = p.clone();
+		a.x -= p2.x;
+		a.y -= p2.y;
+
+		return Math.atan2(a.y, a.x);
+	}
+
+	public function resetVelocities() {
+		for (p in points) {
+			p.v.set(0, 0);
+		}
+	}
+
 	override function update(dt:Float) {
         var p = anchor;
 		for (_ in 0...2) {

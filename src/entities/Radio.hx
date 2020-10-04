@@ -11,6 +11,8 @@ class Radio extends Object {
     
 	var btn:Interactive;
 
+	public var music:hxd.snd.Channel;
+
 	public function new(?parent) {
 		super(parent);
 		rope = new Rope(this, 4);
@@ -21,6 +23,27 @@ class Radio extends Object {
 		btn.x = -59;
 		btn.y = -2;
 		btn.cursor = Default;
+		btn.onClick = e -> {
+			// destroy();
+		}
+
+		fx = new hxd.snd.effect.LowPass();
+		fx.gainHF = 0.01;
+		music = Game.getInstance().sound.playMusic(hxd.Res.music.music1, 0.0, .1);
+	}
+
+	var fx:hxd.snd.effect.LowPass;
+
+	public function mute(mute) {
+		if (music == null) {
+			return;
+		}
+
+		if (mute) {
+			music.addEffect(fx);
+		} else {
+			music.removeEffect(fx);
+		}
 	}
 
 	var grabbed = false;
@@ -36,6 +59,16 @@ class Radio extends Object {
 	}
 
 	var elapsed = 0.;
+
+	public function destroy() {
+		rope.points[0].fixed = false;
+		var p = rope.points[rope.points.length - 1];
+		p.v.y = -10;
+		p.v.x = Math.random() * 10 - 5;
+		Game.getInstance().sound.playWobble(hxd.Res.sound.radiobreak, 0.4);
+		music.stop();
+		music = null;
+	}
 
 	override function sync(ctx:RenderContext) {
 		super.sync(ctx);

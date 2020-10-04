@@ -164,13 +164,15 @@ class DiskBoard extends Entity2D {
 		}
 	}
 
+	public var spawnTimeScale = 1.0;
+
 	override function update(dt:Float) {
-        t += dt;
+		t += dt * spawnTimeScale;
 
 		if (t > spawnTime) {
             t -= spawnTime;
 			spawnTime -= 0.1;
-			var minSpawnTime = .8;
+			var minSpawnTime = .7;
 			if (spawnTime < minSpawnTime) {
 				spawnTime = minSpawnTime;
 			}

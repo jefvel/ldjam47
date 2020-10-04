@@ -1,5 +1,6 @@
 package;
 
+import gamestates.MenuState;
 import gamestates.PlayState;
 import sound.Sounds;
 import gamestate.GameStateHandler;
@@ -38,7 +39,7 @@ class Game extends hxd.App {
         states = new GameStateHandler(this);
 
         // Launch with the hello world gamestate
-		states.setState(new gamestates.PlayState());
+		states.setState(new gamestates.MenuState());
     }
 
     function initEntities() {

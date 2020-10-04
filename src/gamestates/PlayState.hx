@@ -56,8 +56,6 @@ class PlayState extends gamestate.GameState {
 
 	public var radio:Radio;
 
-	var music:hxd.snd.Channel;
-
 	var topBorder:Bitmap;
 	var bottomBorder:Bitmap;
 
@@ -139,7 +137,7 @@ class PlayState extends gamestate.GameState {
 			rightHand.pickupPhone(true, phone.x, phone.y);
 			hand.grab(true, radio.x, radio.y);
 			radio.grab();
-			music.addEffect(fx);
+			radio.mute(true);
 
 			if (!phone.ringing) {
 				idleSound = game.sound.playSfx(hxd.Res.sound.phoneempty, 0.2, true);
@@ -155,20 +153,21 @@ class PlayState extends gamestate.GameState {
 			phone.bm.visible = true;
 			rightHand.pickupPhone(false, phone.x + 30, phone.y + 30);
 			radio.release();
-			music.removeEffect(fx);
+			radio.mute(false);
 			hand.grab(false, radio.x + radio.bm.x, radio.y + radio.bm.y);
 			if (idleSound != null) {
 				idleSound.stop();
 				idleSound = null;
 			}
 		}
-		music = game.sound.playMusic(hxd.Res.music.music1, 0.0, .1);
 
 		var snd = game.sound.playSfx(hxd.Res.sound.radionoise, 0.4, false);
 
 		adjustingRadio = true;
 		snd.onEnd = () -> {
-			music.fadeTo(0.5, 0.1);
+			if (radio.music != null) {
+				radio.music.fadeTo(0.5, 0.1);
+			}
 			adjustingRadio = false;
 			hand.reset();
 		}
@@ -191,6 +190,8 @@ class PlayState extends gamestate.GameState {
 	var lightsBroken = false;
 
 	var timeUntilExplosion = 3.0;
+	var totalExplosions = 0;
+
 	var offsetX = 0.;
 	var offsetY = 0.;
 
@@ -213,6 +214,7 @@ class PlayState extends gamestate.GameState {
 				if (!exploded) {
 					shake();
 					exploded = true;
+					board.spawnTimeScale = 1.7;
 				}
 			} else {
 				flash.width = game.s2d.width;
@@ -229,20 +231,22 @@ class PlayState extends gamestate.GameState {
 	}
 
 	public function shake() {
-		offsetX = 40 - Math.random() * 80;
-		offsetY = 30 - Math.random() * 20;
+		offsetX = -20 + Math.random() * 40; // 40 - Math.random() * 80;
+		offsetY = 15 - Math.random() * 30; // 30 - Math.random() * 20;
 		var vx = .0;
 		var vy = .0;
 		var p = new Process();
 		var elapsed = 0.;
+
 		p.updateFn = dt -> {
 			elapsed += dt;
 			vx += -offsetX * 0.4;
 			vy += -offsetY * 0.4;
 			offsetX += vx;
 			offsetY += vy;
-			offsetX *= 0.94;
-			offsetY *= 0.92;
+			offsetX *= 0.92;
+			offsetY *= 0.9;
+
 			if (elapsed > 1.6) {
 				p.remove();
 				offsetX = 0;
@@ -324,8 +328,8 @@ class PlayState extends gamestate.GameState {
 
 		if (intensity > panicShake) {
 			if (machineryBreakSound == null) {
-				if (music != null) {
-					music.fadeTo(0.1, 0.7);
+				if (radio.music != null) {
+					radio.music.fadeTo(0.1, 0.7);
 				}
 				machineryBreakSound = game.sound.playSfx(hxd.Res.sound.machineryberak, 0.0, true);
 				machineryBreakSound.fadeTo(0.3, 1.0);
@@ -337,9 +341,12 @@ class PlayState extends gamestate.GameState {
 					snd.stop();
 				});
 				machineryBreakSound = null;
-				music.fadeTo(0.5, 0.7);
+				if (radio.music != null) {
+					radio.music.fadeTo(0.5, 0.7);
+				}
 			}
 		}
+
 		if (intensity > extremePanicShake) {
 			timeUntilExplosion -= dt;
 			if (timeUntilExplosion < 0) {
@@ -349,6 +356,9 @@ class PlayState extends gamestate.GameState {
 					alarmSound.fadeTo(0.3, 0.5);
 				}
 			}
+			if (lightsBroken) {
+				checkExplosions(dt);
+			}
 		} else {
 			if (alarmSound != null) {
 				var snd = alarmSound;
@@ -356,6 +366,28 @@ class PlayState extends gamestate.GameState {
 					snd.stop();
 				});
 				alarmSound = null;
+			}
+		}
+	}
+
+	var timeMinorExplosion = 5.0;
+
+	public function checkExplosions(dt:Float) {
+		timeMinorExplosion -= dt;
+		if (timeMinorExplosion < 0) {
+			timeMinorExplosion = 3 + Math.random() * 5;
+			shake();
+			var explosions = [hxd.Res.sound.explosion, hxd.Res.sound.explosion2, hxd.Res.sound.explosion3,];
+			var snd = explosions[Std.int(Math.random() * explosions.length)];
+
+			game.sound.playWobble(snd, 0.4, 0.03);
+			totalExplosions++;
+			if (totalExplosions == 2) {
+				radio.destroy();
+			}
+
+			if (totalExplosions == 4) {
+				phone.destroy();
 			}
 		}
 	}
@@ -425,25 +457,36 @@ class PlayState extends gamestate.GameState {
 		machineBack.width = machineBack.tile.width;
 		machineBack.height = machineBack.tile.height;
 
-		phone.x = machineBack.x + machineBack.width - 100;
-		phone.y = machineBack.y + 110;
-
 		phoneRope.anchor.x = machineBack.x + machineBack.width - 20;
 		phoneRope.anchor.y = machineBack.y + 190;
 
 		radio.x = machineBack.x + 120;
 		radio.y = -20;
 
-		var lp = phoneRope.points[phoneRope.points.length - 1];
-		lp.fixed = true;
-		var p = lp.p;
+		if (!phone.destroyed) {
+			phone.x = machineBack.x + machineBack.width - 100 - phone.bm.x;
+			phone.y = machineBack.y + 110 - phone.bm.y;
 
-		if (rightHand.phoning) {
-			p.x = rightHand.x - 200;
-			p.y = rightHand.y + 300;
+			var lp = phoneRope.points[phoneRope.points.length - 1];
+			lp.fixed = true;
+			var p = lp.p;
+
+			if (rightHand.phoning) {
+				p.x = rightHand.x - 200;
+				p.y = rightHand.y + 300;
+			} else {
+				p.x = phone.x;
+				p.y = phone.y;
+			}
 		} else {
-			p.x = phone.x + 27;
-			p.y = phone.y + 122;
+			var p = phoneRope.getEndPoint();
+			p.fixed = false;
+
+			var rot = phoneRope.getEndRotation();
+			phone.x = p.p.x;
+			phone.y = p.p.y;
+
+			phone.rotation = rot + Math.PI * 0.5;
 		}
 
 		if (adjustingRadio) {

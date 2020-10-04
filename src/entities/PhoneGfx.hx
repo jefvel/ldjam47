@@ -1,5 +1,6 @@
 package entities;
 
+import gamestates.PlayState;
 import h2d.RenderContext;
 import h2d.Interactive;
 import h2d.Bitmap;
@@ -13,14 +14,19 @@ class PhoneGfx extends Object {
 	public var onPush:Void->Void;
 	public var onRelease:Void->Void;
 
-	var rope:Rope;
-
 	var pushed = false;
+	public var destroyed = false;
 	public function new(?parent) {
 		super(parent);
 		bm = new Bitmap(hxd.Res.img.phone.toTile(), this);
-		i = new Interactive(47, 124, this);
+		bm.x = -24;
+		bm.y = -123;
+		i = new Interactive(47, 124, bm);
 		i.onPush = e -> {
+			if (destroyed) {
+				return;
+			}
+
 			pushed = true;
 			if (onPush != null) {
 				onPush();
@@ -52,8 +58,23 @@ class PhoneGfx extends Object {
 	}
 
 	public function startRinging() {
+		if (destroyed) {
+			return;
+		}
+
 		ringing = true;
 		ringSound = Game.getInstance().sound.playSfx(hxd.Res.sound.phonering, 0.4, true);
+	}
+
+	public function destroy() {
+		if (destroyed) {
+			return;
+		}
+
+		PlayState.current.phoneRope.getEndPoint().v.set(5, -28);
+		Game.getInstance().sound.playWobble(hxd.Res.sound.phonebreak, 0.3, 0.05);
+		destroyed = true;
+		stopRinging();
 	}
 
 	public function stopRinging() {

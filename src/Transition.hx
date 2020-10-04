@@ -91,7 +91,7 @@ class Transition extends Interactive {
 	}
 
 	var inTime = .5;
-	var outTime = .8;
+	var outTime = .6;
 
 	var t = 0.0;
 
