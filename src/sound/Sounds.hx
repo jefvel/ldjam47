@@ -41,6 +41,7 @@ class Sounds {
 
 		currentMusic = music.play(true, 0, musicChannel);
 		currentMusic.fadeTo(volume, crossFadeTime);
+		return currentMusic;
 	}
 
 	public function stopMusic(fadeoutTime = 0.4) {

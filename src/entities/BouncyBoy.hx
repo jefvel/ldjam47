@@ -1,5 +1,6 @@
 package entities;
 
+import h2d.filter.Bloom;
 import gamestates.PlayState;
 import graphics.Sprite;
 import h2d.Tile;
@@ -29,6 +30,7 @@ class BouncyBoy extends Entity2D {
 		bm.y = -height * 0.5;
 
 		target = thingToBounce;
+		filter = new h2d.filter.Group([new h2d.filter.Glow(), new h2d.filter.Bloom(),]); // (0, 0, 0x44ef55);
 
         var b = target.getBounds();
 
@@ -56,7 +58,7 @@ class BouncyBoy extends Entity2D {
 	var t = 0.;
 	var total = 0.2;
 
-	var xtarget = 138;
+	var xtarget = 143;
 
     var targetRotation = 0.0;
     
@@ -78,7 +80,7 @@ class BouncyBoy extends Entity2D {
 		y += vy;
 
 		var time = Math.min(t / total, 1.0);
-		var scale = 0.2;
+		var scale = 0.5;
 		var s = 1. + scale - scale * T.smootherstep(0, 1, time);
 		setScale(s);
 
@@ -87,7 +89,11 @@ class BouncyBoy extends Entity2D {
 		if (y > 138 && !ejected) {
 			y = 138;
 			x = Math.round(x);
-			y = Math.round(y);
-        } 
+            y = Math.round(y);
+		} else if (ejected) {
+			if (y > 200) {
+				remove();
+			}
+        }
 	}
 }

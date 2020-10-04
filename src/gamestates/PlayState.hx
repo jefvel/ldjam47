@@ -1,5 +1,7 @@
 package gamestates;
 
+import entities.Radio;
+import entities.NumberMeter;
 import entities.Rope;
 import entities.PhoneGfx;
 import h2d.Bitmap;
@@ -46,6 +48,12 @@ class PlayState extends gamestate.GameState {
 	public var phone:PhoneGfx;
 	public var phoneRope:Rope;
 
+	public var numberMeter:NumberMeter;
+
+	public var radio:Radio;
+
+	var music:hxd.snd.Channel;
+
 	override function onEnter() {
 		super.onEnter();
 		current = this;
@@ -59,6 +67,7 @@ class PlayState extends gamestate.GameState {
 		board = new DiskBoard(container);
 		pay = new Pay(container);
 		meter = new Meter(container);
+		meter.max = 42;
 
 		buttons = new Buttons(container, board.laneCount);
 		buttons.x = 90;
@@ -73,7 +82,9 @@ class PlayState extends gamestate.GameState {
 		handle.onPull = onHandlePull;
 		handle.onEndPull = onHandleRelease;
 
-		phoneRope = new Rope(container);
+		phoneRope = new Rope(container, 10);
+
+		radio = new Radio(container);
 
 		hand = new Hand(container);
 		rightHand = new Hand(container);
@@ -82,6 +93,12 @@ class PlayState extends gamestate.GameState {
 		board.onActivateLane = onActivateLane;
 		buttons.onPress = onPressButton;
 		buttons.onRelease = onReleaseButton;
+
+		numberMeter = new NumberMeter(machineBack);
+		numberMeter.x = 300;
+		numberMeter.y = 267;
+		numberMeter.value = 0;
+
 
 		phone.onPush = () -> {
 			phone.bm.visible = false;
@@ -92,6 +109,7 @@ class PlayState extends gamestate.GameState {
 			phone.bm.visible = true;
 			rightHand.pickupPhone(false, phone.x + 30, phone.y + 30);
 		}
+		music = game.sound.playMusic(hxd.Res.music.music1, 0.5, 1.0);
 	}
 
 	function onActivateLane(lane:Lane, activated) {
@@ -150,6 +168,7 @@ class PlayState extends gamestate.GameState {
 				var r = bouncyBoys.shift();
 				if (r != null) {
 					r.eject();
+					numberMeter.value++;
 				} else {
 					handle.stopDrag();
 					handle.show(false);
@@ -172,7 +191,7 @@ class PlayState extends gamestate.GameState {
 		rightHand.defaultX = game.s2d.width + 40; 
 
 		time += dt;
-		machineBack.y = 44;
+		machineBack.y = Math.max(40, game.s2d.height * 0.15);
 		machineBack.x = (game.s2d.width - machineBack.tile.width) * 0.5; // buttons.x - 25;
 
 		buttons.x = machineBack.x + 20;
@@ -202,6 +221,9 @@ class PlayState extends gamestate.GameState {
 
 		phoneRope.anchor.x = machineBack.x + machineBack.width - 20;
 		phoneRope.anchor.y = machineBack.y + 190;
+
+		radio.x = machineBack.x + 110;
+		radio.y = -20;
 
 		var lp = phoneRope.points[phoneRope.points.length - 1];
 		lp.fixed = true;
