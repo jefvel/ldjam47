@@ -99,17 +99,38 @@ class PlayState extends gamestate.GameState {
 		numberMeter.y = 267;
 		numberMeter.value = 0;
 
+		var fx = new hxd.snd.effect.LowPass();
+		fx.gainHF = 0.01;
+
+		var idleSound:Channel = null;
 
 		phone.onPush = () -> {
 			phone.bm.visible = false;
 			rightHand.pickupPhone(true, phone.x, phone.y);
+			hand.grab(true, radio.x, radio.y);
+			radio.grab();
+			music.addEffect(fx);
+
+			if (!phone.ringing) {
+				idleSound = game.sound.playSfx(hxd.Res.sound.phoneempty, 0.2, true);
+			} else {
+				phone.stopRinging();
+			}
 		}
 
 		phone.onRelease = () -> {
 			phone.bm.visible = true;
 			rightHand.pickupPhone(false, phone.x + 30, phone.y + 30);
+			radio.release();
+			music.removeEffect(fx);
+			hand.grab(false, radio.x + radio.bm.x, radio.y + radio.bm.y);
+			if (idleSound != null) {
+				idleSound.stop();
+				idleSound = null;
+			}
 		}
 		music = game.sound.playMusic(hxd.Res.music.music1, 0.5, 1.0);
+		phone.startRinging();
 	}
 
 	function onActivateLane(lane:Lane, activated) {
@@ -168,6 +189,7 @@ class PlayState extends gamestate.GameState {
 				var r = bouncyBoys.shift();
 				if (r != null) {
 					r.eject();
+					game.sound.playWobble(hxd.Res.sound.eject, 0.2);
 					numberMeter.value++;
 				} else {
 					handle.stopDrag();

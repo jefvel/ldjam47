@@ -9,7 +9,9 @@ class Handle extends Entity2D {
 	public var handleGfx:Bitmap;
     var rope : Rope;
     var btn:Interactive;
-	public var pushed = false;
+    public var pushed = false;
+    
+	public var breakable = false;
 
 	public function new(?parent) {
         super(parent);

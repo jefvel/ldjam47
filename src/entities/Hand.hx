@@ -57,8 +57,23 @@ class Hand extends Entity2D {
         }
 	}
 
-	public var phoning = false;
+	public function grab(enable, x:Float, y:Float) {
+		if (enable) {
+			gfx.animation.currentFrame = 3;
+			this.x = x - 100;
+			this.y = y - 100;
+			targetX = this.x;
+			targetY = this.y;
+		} else {
+			gfx.animation.currentFrame = 0;
+			targetY = Game.getInstance().s2d.height - 160;
+			this.x = x + 100.;
+			this.y = y - 150.;
+		}
+		phoning = enable;
+	}
 
+	public var phoning = false;
 	public function pickupPhone(enable, x:Float, y:Float) {
 		if (enable) {
 			if (!phoning) {

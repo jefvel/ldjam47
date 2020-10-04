@@ -35,6 +35,12 @@ class NumberMeter extends h2d.Object {
         t += ctx.elapsedTime;
         var index = 0;
         for (f in filters) {
+			var noise = n.perlin1D(index, t * 5, 1);
+			if (noise > 0.9) {
+				f.alpha = 0;
+			} else {
+				f.alpha = 1.;
+			}
             f.gain = 1.9 +  n.perlin1D(index, t * 8., 2) * 0.2;
             index ++;
         }

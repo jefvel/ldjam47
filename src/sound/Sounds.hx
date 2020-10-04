@@ -30,8 +30,8 @@ class Sounds {
 		musicChannel = new ChannelGroup("music");
 	}
 
-	public function playSfx(snd:Sound, volume = 0.5) {
-		return snd.play(false, volume, sfxChannel);
+	public function playSfx(snd:Sound, volume = 0.5, loop = false) {
+		return snd.play(loop, volume, sfxChannel);
 	}
 
 	public function playMusic(music:Sound, volume = .5, crossFadeTime = 0.2) {
