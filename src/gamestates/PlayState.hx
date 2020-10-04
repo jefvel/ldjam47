@@ -190,22 +190,63 @@ class PlayState extends gamestate.GameState {
 
 	var lightsBroken = false;
 
+	var timeUntilExplosion = 3.0;
+	var offsetX = 0.;
+	var offsetY = 0.;
+
 	public function breakLights() {
 		if (lightsBroken) {
 			return;
 		}
 
+		game.sound.playSfx(hxd.Res.sound.explosion, 0.8);
+		var flash = new Bitmap(Tile.fromColor(0xFEFEFE), overlays);
+
 		lightsBroken = true;
 		var elapsed = 0.;
 		var lightProcess = new Process();
+		var exploded = false;
 		lightProcess.updateFn = dt -> {
 			elapsed += dt;
-			elapsed *= 1.2;
-			var s = Math.sin(elapsed * 150) > 0 ? 1. : 0;
+			if (elapsed > 0.3) {
+				flash.remove();
+				if (!exploded) {
+					shake();
+					exploded = true;
+				}
+			} else {
+				flash.width = game.s2d.width;
+				flash.height = game.s2d.height;
+			}
+
+			var s = Math.sin(elapsed * 150) > 0 ? 1. : 0.5;
 			darkness.alpha = s * (0.7 + Math.random() * 0.3);
-			if (elapsed > 2.9) {
-				lightProcess.remove();
+			if (elapsed > 0.7) {
 				darkness.alpha = 0.8;
+				lightProcess.remove();
+			}
+		}
+	}
+
+	public function shake() {
+		offsetX = 40 - Math.random() * 80;
+		offsetY = 30 - Math.random() * 20;
+		var vx = .0;
+		var vy = .0;
+		var p = new Process();
+		var elapsed = 0.;
+		p.updateFn = dt -> {
+			elapsed += dt;
+			vx += -offsetX * 0.4;
+			vy += -offsetY * 0.4;
+			offsetX += vx;
+			offsetY += vy;
+			offsetX *= 0.94;
+			offsetY *= 0.92;
+			if (elapsed > 1.6) {
+				p.remove();
+				offsetX = 0;
+				offsetY = 0.;
 			}
 		}
 	}
@@ -275,7 +316,7 @@ class PlayState extends gamestate.GameState {
 	var panicShake = 0.8;
 	var extremePanicShake = 0.93;
 
-	public function startShaking(intensity = 0.0) {
+	public function shakeUpdate(intensity = 0.0, dt:Float) {
 		shakeIntensity = intensity;
 		if (!shaking) {
 			shaking = true;
@@ -300,11 +341,14 @@ class PlayState extends gamestate.GameState {
 			}
 		}
 		if (intensity > extremePanicShake) {
-			if (alarmSound == null) {
-				alarmSound = game.sound.playSfx(hxd.Res.sound.alarm, 0.0, true);
-				alarmSound.fadeTo(0.3, 0.5);
+			timeUntilExplosion -= dt;
+			if (timeUntilExplosion < 0) {
+				breakLights();
+				if (alarmSound == null) {
+					alarmSound = game.sound.playSfx(hxd.Res.sound.alarm, 0.0, true);
+					alarmSound.fadeTo(0.3, 0.5);
+				}
 			}
-			breakLights();
 		} else {
 			if (alarmSound != null) {
 				var snd = alarmSound;
@@ -421,13 +465,16 @@ class PlayState extends gamestate.GameState {
 		var panicThreshold = 0.3;
 		var panicLevel = meter.value / meter.max;
 
-		startShaking(panicLevel);
+		shakeUpdate(panicLevel, dt);
 
 		if (shaking) {
 			var shake = Math.max(0, (shakeIntensity - normalShake) * (1 / normalShake));
 			container.x = perlin.perlin1D(4, time * 20., 4) * 3 * shake;
 			container.y = perlin.perlin1D(8, time * 9., 3) * 2.5 * shake;
 		}
+
+		container.x += offsetX;
+		container.y += offsetY;
 
 		basketFull = bouncyBoys.length >= basketSize;
 		warningLamp.activated = basketFull;
