@@ -13,26 +13,19 @@ import entities.Meter;
 import h2d.Object;
 import entities.DiskBoard;
 import entities.Pay;
-import entities.Phone;
+import entities.PhoneDialogue;
 import hxd.snd.effect.Pitch;
 import hxd.snd.Channel;
 import hxd.Event;
 
-enum DayPhase{
-	Morning;
-	Day;
-}
-
 class PlayState extends gamestate.GameState {
 	public function new() {}
-
-	var currentDayPhase = Morning;
 
 	var callMade = false;
 
 	var pay:Pay;
 
-	var phoneCalling:Phone;
+	var phoneDialogue:PhoneDialogue;
 
 	var board:DiskBoard;
 
@@ -70,7 +63,6 @@ class PlayState extends gamestate.GameState {
 
 		board = new DiskBoard(container);
 		pay = new Pay(container);
-		phoneCalling = new Phone(container);
 		meter = new Meter(container);
 
 		buttons = new Buttons(container, board.laneCount);
@@ -78,6 +70,8 @@ class PlayState extends gamestate.GameState {
 		buttons.y = 82;
 
 		phone = new PhoneGfx(container);
+		phoneDialogue = new PhoneDialogue(phone);
+		phoneDialogue.y += game.s2d.height * 0.5;
 
 		cage = new Cage(container);
 
@@ -97,11 +91,13 @@ class PlayState extends gamestate.GameState {
 		buttons.onRelease = onReleaseButton;
 
 		phone.onPush = () -> {
+			phoneDialogue.MakeCall();
 			phone.bm.visible = false;
 			rightHand.pickupPhone(true, phone.x, phone.y);
 		}
 
 		phone.onRelease = () -> {
+			phoneDialogue.StopCall();
 			phone.bm.visible = true;
 			rightHand.pickupPhone(false, phone.x + 30, phone.y + 30);
 		}
@@ -185,26 +181,6 @@ class PlayState extends gamestate.GameState {
 		rightHand.defaultX = game.s2d.width + 40; 
 
 		time += dt;
-
-		// Do call logic
-		if (currentDayPhase == DayPhase.Morning) {
-			if (time > Const.MORNING_DURATION + 0.) {
-				currentDayPhase = DayPhase.Day;
-				callMade = false;
-			}
-
-			// Determine make call
-			if (!callMade && 0.1 > Math.random()) {
-				phoneCalling.MakeMorningCall(false);
-				callMade = true;
-			}
-		} else {
-			// Determine make call
-			if (!callMade && 0.1 > Math.random()) {
-				phoneCalling.MakeDayCall();
-				callMade = true;
-			}
-		}
 		
 		machineBack.y = 44;
 		machineBack.x = (game.s2d.width - machineBack.tile.width) * 0.5; // buttons.x - 25;
