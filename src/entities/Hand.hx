@@ -7,7 +7,8 @@ class Hand extends Entity2D {
 	var gfx:Sprite;
 
 	var pressTime = 0.;
-	var pressing = false;
+    var pressing = false;
+	public var dragging = false;
 
 	public function new(?parent) {
 		super(parent);
@@ -27,16 +28,58 @@ class Hand extends Entity2D {
 		pressing = true;
 		pressTime = 0;
 		Game.getInstance().sound.playWobble(hxd.Res.sound.pushbutton, 0.3, 0.05);
-	}
+    }
+    
+	public var defaultX = 55 - 113;
 
 	public function releasePush() {
 		gfx.animation.currentFrame = 0;
-		targetX = 55 - 113;
 		targetY = Game.getInstance().s2d.height - 160;
 		pressing = false;
 	}
 
-	var time = 0.0;
+    var time = 0.0;
+    
+	var dragX = 0.;
+	var dragY = 0.;
+
+	public function drag(x:Float, y:Float) {
+		dragging = true;
+		dragX = x + 100.;
+		dragY = y - 150;
+		gfx.animation.currentFrame = 3;
+	}
+
+	public function stopDrag() {
+		if (dragging) {
+            dragging = false;
+            gfx.animation.currentFrame = 0;
+        }
+	}
+
+	public var phoning = false;
+
+	public function pickupPhone(enable, x:Float, y:Float) {
+		if (enable) {
+			if (!phoning) {
+				Game.getInstance().sound.playWobble(hxd.Res.sound.pickupphone);
+			}
+			gfx.animation.currentFrame = 1;
+			this.x = x + 100.;
+			this.y = y - 150.;
+			targetX = x + 300;
+			targetY = y + 150;
+		} else {
+			if (phoning) {
+				Game.getInstance().sound.playWobble(hxd.Res.sound.phoneputdown);
+			}
+			gfx.animation.currentFrame = 0;
+			targetY = Game.getInstance().s2d.height - 160;
+			this.x = x + 100.;
+			this.y = y - 150.;
+		}
+		phoning = enable;
+	}
 
 	override function update(dt:Float) {
 		pressTime += dt;
@@ -44,17 +87,27 @@ class Hand extends Entity2D {
 		time += dt;
 		var pTime = Math.min(pressTime / 0.05, 1.0);
 
-		if (!pressing) {
+		if (!pressing && !dragging) {
 			gfx.x = Math.sin(time * 0.7) * 4;
-			gfx.y = Math.cos(time * 0.4) * 4;
-			x += (targetX - x) * 0.1;
-			y += (targetY - y) * 0.06;
-		} else {
+            gfx.y = Math.cos(time * 0.4) * 4;
+			if (!phoning) {
+				x += (defaultX - x) * 0.2;
+				y += (targetY - y) * 0.16;
+			} else {
+				x += (targetX - x) * 0.1;
+			    y += (targetY - y) * 0.06;
+			}
+		} else if (pressing) {
 			x = targetX;
 			y = targetY - 35 + T.bounceOut(pTime) * 35;
 			gfx.y = 0;
 
-			gfx.x = Math.abs(Math.sin(time * 990.7) * 1);
-		}
+			gfx.x = (Math.sin(time * 500.7) * 1);
+		} else if (dragging) {
+			x = dragX;
+			y = dragY;
+			gfx.y = 0;
+			gfx.x = 0;
+        }
 	}
 }
