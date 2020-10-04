@@ -1,0 +1,40 @@
+{ "frames": [
+   {
+    "filename": "talk_bubble 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 364, "h": 128 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 364, "h": 128 },
+    "sourceSize": { "w": 364, "h": 128 },
+    "duration": 100
+   },
+   {
+    "filename": "talk_bubble 1.aseprite",
+    "frame": { "x": 365, "y": 0, "w": 364, "h": 128 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 364, "h": 128 },
+    "sourceSize": { "w": 364, "h": 128 },
+    "duration": 100
+   },
+   {
+    "filename": "talk_bubble 2.aseprite",
+    "frame": { "x": 0, "y": 129, "w": 364, "h": 128 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 364, "h": 128 },
+    "sourceSize": { "w": 364, "h": 128 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.2.25-x64",
+  "image": "talk_bubble.png",
+  "format": "RGBA8888",
+  "size": { "w": 729, "h": 257 },
+  "scale": "1",
+  "frameTags": [
+  ]
+ }
+}

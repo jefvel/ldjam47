@@ -18,10 +18,11 @@ class DiskBoard extends Entity2D {
 	public var radius = 128;
 
 	public var vinylSpriteScale = 0.64;
+    var vinylRotationSpeed = 0.32;
 
 	var disk:Graphics;
 
-	var vinyl:Object;
+	var vinyl:Bitmap;
 	var vinylHighlights:Sprite;
 
 	var buttons:Object;
@@ -43,7 +44,7 @@ class DiskBoard extends Entity2D {
         super(parent);
 		disk = new Graphics(this);
 		
-		vinyl = Res.img.Vinyl_tilesheet.toSprite2D(disk);
+		vinyl = new h2d.Bitmap(Res.img.Vinyl_tilesheet.image, disk);
 		vinylHighlights = Res.img.Vinyl_highlights_tilesheet.toSprite2D(disk);
 
 		laneWidth = radius * 0.25;
@@ -65,8 +66,10 @@ class DiskBoard extends Entity2D {
 		disk.drawCircle(0, 0, radius);
 		disk.x = disk.y = radius;
 
-		vinyl.x = vinyl.y = vinylHighlights.x = vinylHighlights.y = -1.05*radius;
+		vinylHighlights.x = vinylHighlights.y = -1.05*radius;
 		vinyl.scaleX = vinyl.scaleY = vinylHighlights.scaleX = vinylHighlights.scaleY = vinylSpriteScale;
+		vinyl.tile = vinyl.tile.center();
+		// vinyl.x = vinyl.y = 
 
 		vinylHighlights.animation.play("Flicker");
         
@@ -237,5 +240,7 @@ class DiskBoard extends Entity2D {
 
 			lanes[i].highlight(highlight);
 		}
+
+		vinyl.rotation += Math.PI * vinylRotationSpeed * dt;
     }
 }

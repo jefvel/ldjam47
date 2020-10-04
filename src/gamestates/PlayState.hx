@@ -19,6 +19,7 @@ import entities.Meter;
 import h2d.Object;
 import entities.DiskBoard;
 import entities.Pay;
+import entities.PhoneDialogue;
 import hxd.snd.effect.Pitch;
 import hxd.snd.Channel;
 import hxd.Event;
@@ -26,7 +27,13 @@ import hxd.Event;
 class PlayState extends gamestate.GameState {
 	public function new() {}
 
+	var callMade = false;
+
 	var pay:Pay;
+
+	var phoneDialogue:PhoneDialogue;
+	var phoneTimer = 0.;
+	var phoneStressFactor = 1.;
 
 	var board:DiskBoard;
 
@@ -90,6 +97,8 @@ class PlayState extends gamestate.GameState {
 		buttons.y = 82;
 
 		phone = new PhoneGfx(container);
+		phoneDialogue = new PhoneDialogue(phone);
+		phoneDialogue.y += game.s2d.height * 0.5;
 
 		cage = new Cage(container);
 
@@ -142,11 +151,17 @@ class PlayState extends gamestate.GameState {
 			if (!phone.ringing) {
 				idleSound = game.sound.playSfx(hxd.Res.sound.phoneempty, 0.2, true);
 			} else {
-				phone.stopRinging();
+				phoneDialogue.MakeCall();
 			}
+
+			phone.stopRinging();
 		}
 
 		phone.onRelease = () -> {
+			if (phoneDialogue.StopCall() && !phone.ringing) {
+				phone.startRinging();
+			}
+
 			if (adjustingRadio) {
 				return;
 			}
@@ -417,6 +432,13 @@ class PlayState extends gamestate.GameState {
 			}
 		}
 
+		if (phoneTimer > Const.PHONE_CALL_BASE_INTERVAL * phoneStressFactor && !phone.ringing && !rightHand.phoning) {
+			phone.startRinging();
+			phoneTimer = 0.;
+		} else {
+			phoneTimer += dt;
+		}
+
 		if (!handle.shown) {
 			if (bouncyBoys.length >= 2) {
 				handle.show();
@@ -532,5 +554,11 @@ class PlayState extends gamestate.GameState {
 		super.onLeave();
 		container.remove();
 		overlays.remove();
+	}
+
+	// Primarily to speed up phone call frequency but would be cool to unify
+	// advancing game stress in single function
+	function advanceStressFactor() {
+		phoneStressFactor *= 0.8;
 	}
 }
