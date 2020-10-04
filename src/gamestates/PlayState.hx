@@ -1,5 +1,6 @@
 package gamestates;
 
+import h2d.Tile;
 import entities.Radio;
 import entities.NumberMeter;
 import entities.Rope;
@@ -54,6 +55,9 @@ class PlayState extends gamestate.GameState {
 
 	var music:hxd.snd.Channel;
 
+	var topBorder:Bitmap;
+	var bottomBorder:Bitmap;
+
 	override function onEnter() {
 		super.onEnter();
 		current = this;
@@ -89,6 +93,8 @@ class PlayState extends gamestate.GameState {
 		hand = new Hand(container);
 		rightHand = new Hand(container);
 		rightHand.scaleX = -1;
+		rightHand.defaultX = game.s2d.width + 40;
+		rightHand.reset();
 
 		board.onActivateLane = onActivateLane;
 		buttons.onPress = onPressButton;
@@ -105,6 +111,9 @@ class PlayState extends gamestate.GameState {
 		var idleSound:Channel = null;
 
 		phone.onPush = () -> {
+			if (adjustingRadio) {
+				return;
+			}
 			phone.bm.visible = false;
 			rightHand.pickupPhone(true, phone.x, phone.y);
 			hand.grab(true, radio.x, radio.y);
@@ -119,6 +128,9 @@ class PlayState extends gamestate.GameState {
 		}
 
 		phone.onRelease = () -> {
+			if (adjustingRadio) {
+				return;
+			}
 			phone.bm.visible = true;
 			rightHand.pickupPhone(false, phone.x + 30, phone.y + 30);
 			radio.release();
@@ -129,9 +141,22 @@ class PlayState extends gamestate.GameState {
 				idleSound = null;
 			}
 		}
-		music = game.sound.playMusic(hxd.Res.music.music1, 0.5, 1.0);
-		phone.startRinging();
+		var snd = game.sound.playSfx(hxd.Res.sound.radionoise, 0.4, false);
+
+		adjustingRadio = true;
+		snd.onEnd = () -> {
+			music = game.sound.playMusic(hxd.Res.music.music1, 0.5, .1);
+			adjustingRadio = false;
+			hand.reset();
+		}
+
+		// phone.startRinging();
+
+		topBorder = new Bitmap(Tile.fromColor(0x030303), container);
+		bottomBorder = new Bitmap(Tile.fromColor(0x030303), container);
 	}
+
+	var adjustingRadio = false;
 
 	function onActivateLane(lane:Lane, activated) {
 		if (activated) {
@@ -232,8 +257,8 @@ class PlayState extends gamestate.GameState {
 		meter.x = buttons.x;
 		meter.y = buttons.y - 48;
 
-		handle.x = game.s2d.width - 100;
-		handle.y = -32;
+		handle.x = machineBack.x + 440;
+		handle.y = machineBack.y - 50;
 
 		machineBack.width = machineBack.tile.width;
 		machineBack.height = machineBack.tile.height;
@@ -244,7 +269,7 @@ class PlayState extends gamestate.GameState {
 		phoneRope.anchor.x = machineBack.x + machineBack.width - 20;
 		phoneRope.anchor.y = machineBack.y + 190;
 
-		radio.x = machineBack.x + 110;
+		radio.x = machineBack.x + 120;
 		radio.y = -20;
 
 		var lp = phoneRope.points[phoneRope.points.length - 1];
@@ -259,7 +284,20 @@ class PlayState extends gamestate.GameState {
 			p.y = phone.y + 122;
 		}
 
+		if (adjustingRadio) {
+			hand.point(radio.x + radio.bm.x + 20 + Math.random() * 5, radio.y + radio.bm.y + 50 + Math.random() * 5);
+		}
+
 		meter.value = board.markers.length;
+		radio.y = machineBack.y - 70;
+
+		bottomBorder.width = game.s2d.width;
+		bottomBorder.height = 400;
+		bottomBorder.y = machineBack.y + 325;
+
+		topBorder.width = bottomBorder.width;
+		topBorder.height = 400;
+		topBorder.y = machineBack.y - 50 - topBorder.height;
 	}
 
 	override function onLeave() {

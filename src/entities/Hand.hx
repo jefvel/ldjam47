@@ -29,6 +29,20 @@ class Hand extends Entity2D {
 		pressTime = 0;
 		Game.getInstance().sound.playWobble(hxd.Res.sound.pushbutton, 0.3, 0.05);
     }
+
+	public function point(x:Float, y:Float) {
+		targetX = x - 154;
+		targetY = y - 160;
+		gfx.animation.currentFrame = 2;
+	}
+
+	public function reset() {
+		gfx.animation.currentFrame = 0;
+		targetY = Game.getInstance().s2d.height - 160;
+		this.x = x + 100.;
+		this.y = y - 150.;
+		targetX = defaultX;
+	}
     
 	public var defaultX = 55 - 113;
 
@@ -54,6 +68,7 @@ class Hand extends Entity2D {
 		if (dragging) {
             dragging = false;
             gfx.animation.currentFrame = 0;
+			reset();
         }
 	}
 
@@ -68,7 +83,8 @@ class Hand extends Entity2D {
 			gfx.animation.currentFrame = 0;
 			targetY = Game.getInstance().s2d.height - 160;
 			this.x = x + 100.;
-			this.y = y - 150.;
+            this.y = y - 150.;
+			reset();
 		}
 		phoning = enable;
 	}
@@ -106,7 +122,7 @@ class Hand extends Entity2D {
 			gfx.x = Math.sin(time * 0.7) * 4;
             gfx.y = Math.cos(time * 0.4) * 4;
 			if (!phoning) {
-				x += (defaultX - x) * 0.2;
+				x += (targetX - x) * 0.2;
 				y += (targetY - y) * 0.16;
 			} else {
 				x += (targetX - x) * 0.1;

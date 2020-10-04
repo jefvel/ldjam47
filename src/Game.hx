@@ -1,5 +1,6 @@
 package;
 
+import gamestates.PlayState;
 import sound.Sounds;
 import gamestate.GameStateHandler;
 
