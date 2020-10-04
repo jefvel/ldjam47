@@ -6,9 +6,10 @@ import h2d.Bitmap;
 import entity.Entity2D;
 
 class Handle extends Entity2D {
-    var handleGfx: Bitmap;
+	public var handleGfx:Bitmap;
     var rope : Rope;
-	var btn:Interactive;
+    var btn:Interactive;
+	public var pushed = false;
 
 	public function new(?parent) {
         super(parent);
@@ -24,7 +25,8 @@ class Handle extends Entity2D {
 
 		btn.onPush = e -> {
 			draggingNode = rope.points[rope.points.length - 1];
-			draggingNode.fixed = true;
+            draggingNode.fixed = true;
+			pushed = true;
 		}
 
 		btn.onRelease = stopDrag;
@@ -46,7 +48,8 @@ class Handle extends Entity2D {
 			if (onEndPull != null) {
 				onEndPull();
 			}
-		}
+        }
+		pushed = false;
 	}
 
 	var draggingNode:RopePoint;
@@ -109,7 +112,14 @@ class Handle extends Entity2D {
 						onPull();
 					}
 				}
-			}
+			} else {
+				if (pulling) {
+					pulling = false;
+					if (onEndPull != null) {
+						onEndPull();
+					}
+				}
+            }
 		}
 	}
 

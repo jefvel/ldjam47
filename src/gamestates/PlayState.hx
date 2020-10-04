@@ -27,10 +27,11 @@ class PlayState extends gamestate.GameState {
 	var container:h2d.Object;
 
 	var hand:Hand;
+	var rightHand:Hand;
 
 	var buttons:Buttons;
 
-	var handle:Handle;
+	public var handle:Handle;
 
 	var machineBack:Bitmap;
 
@@ -66,6 +67,8 @@ class PlayState extends gamestate.GameState {
 		handle.onEndPull = onHandleRelease;
 
 		hand = new Hand(container);
+		rightHand = new Hand(container);
+		rightHand.scaleX = -1;
 
 		board.onActivateLane = onActivateLane;
 	}
@@ -126,6 +129,14 @@ class PlayState extends gamestate.GameState {
 			}
 		}
 
+		if (handle.pushed) {
+			rightHand.drag(handle.handleGfx.x + handle.x, handle.handleGfx.y + handle.y);
+		} else {
+			rightHand.stopDrag();
+		}
+
+		rightHand.defaultX = game.s2d.width + 40; 
+
 		time += dt;
 		machineBack.y = 44;
 		machineBack.x = (game.s2d.width - machineBack.tile.width) * 0.5; // buttons.x - 25;
@@ -146,7 +157,7 @@ class PlayState extends gamestate.GameState {
 		meter.x = buttons.x;
 		meter.y = buttons.y - 48;
 
-		handle.x = game.s2d.width - 160;
+		handle.x = game.s2d.width - 100;
 		handle.y = -32;
 
 		meter.value = board.markers.length;
