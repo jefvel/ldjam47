@@ -144,7 +144,7 @@ class Handle extends Entity2D {
 				p.p.y = rope.anchor.y + Math.random();
 			}
 		} else {
-			rope.anchor.y = -1000;
+			rope.anchor.y = -200;
 			stopDrag();
 		}
 

@@ -1,5 +1,7 @@
 package gamestates;
 
+import entities.Rope;
+import entities.PhoneGfx;
 import h2d.Bitmap;
 import entities.Cage;
 import entities.BouncyBoy;
@@ -41,6 +43,9 @@ class PlayState extends gamestate.GameState {
 
 	public var cage:Cage;
 
+	public var phone:PhoneGfx;
+	public var phoneRope:Rope;
+
 	override function onEnter() {
 		super.onEnter();
 		current = this;
@@ -59,18 +64,34 @@ class PlayState extends gamestate.GameState {
 		buttons.x = 90;
 		buttons.y = 82;
 
+		phone = new PhoneGfx(container);
+
 		cage = new Cage(container);
 
 		handle = new Handle(container);
-		// handle.show(false);
+		handle.show(false);
 		handle.onPull = onHandlePull;
 		handle.onEndPull = onHandleRelease;
+
+		phoneRope = new Rope(container);
 
 		hand = new Hand(container);
 		rightHand = new Hand(container);
 		rightHand.scaleX = -1;
 
 		board.onActivateLane = onActivateLane;
+		buttons.onPress = onPressButton;
+		buttons.onRelease = onReleaseButton;
+
+		phone.onPush = () -> {
+			phone.bm.visible = false;
+			rightHand.pickupPhone(true, phone.x, phone.y);
+		}
+
+		phone.onRelease = () -> {
+			phone.bm.visible = true;
+			rightHand.pickupPhone(false, phone.x + 30, phone.y + 30);
+		}
 	}
 
 	function onActivateLane(lane:Lane, activated) {
@@ -81,6 +102,14 @@ class PlayState extends gamestate.GameState {
 			buttons.releaseButtons();
 			hand.releasePush();
 		}
+	}
+
+	function onPressButton(index) {
+		board.slowLane(index);
+	}
+
+	function onReleaseButton(index) {
+		board.resetSpeeds();
 	}
 
 	var ejectingRods = false;
@@ -102,6 +131,11 @@ class PlayState extends gamestate.GameState {
 
 	override function onEvent(e:Event) {
 		board.onEvent(e);
+		if (e.kind == ERelease) {
+			if (rightHand.phoning) {
+				phone.onRelease();
+			}
+		}
 	}
 
 	var time = 0.0;
@@ -117,14 +151,14 @@ class PlayState extends gamestate.GameState {
 				if (r != null) {
 					r.eject();
 				} else {
-					// handle.stopDrag();
-					// handle.show(false);
+					handle.stopDrag();
+					handle.show(false);
 				}
 			}
 		}
 
 		if (!handle.shown) {
-			if (bouncyBoys.length >= 3) {
+			if (bouncyBoys.length >= 2) {
 				handle.show();
 			}
 		}
@@ -159,6 +193,27 @@ class PlayState extends gamestate.GameState {
 
 		handle.x = game.s2d.width - 100;
 		handle.y = -32;
+
+		machineBack.width = machineBack.tile.width;
+		machineBack.height = machineBack.tile.height;
+
+		phone.x = machineBack.x + machineBack.width - 100;
+		phone.y = machineBack.y + 110;
+
+		phoneRope.anchor.x = machineBack.x + machineBack.width - 20;
+		phoneRope.anchor.y = machineBack.y + 190;
+
+		var lp = phoneRope.points[phoneRope.points.length - 1];
+		lp.fixed = true;
+		var p = lp.p;
+
+		if (rightHand.phoning) {
+			p.x = rightHand.x - 200;
+			p.y = rightHand.y + 300;
+		} else {
+			p.x = phone.x + 27;
+			p.y = phone.y + 122;
+		}
 
 		meter.value = board.markers.length;
 	}

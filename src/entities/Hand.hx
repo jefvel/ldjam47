@@ -51,8 +51,34 @@ class Hand extends Entity2D {
 	}
 
 	public function stopDrag() {
-		dragging = false;
-		gfx.animation.currentFrame = 0;
+		if (dragging) {
+            dragging = false;
+            gfx.animation.currentFrame = 0;
+        }
+	}
+
+	public var phoning = false;
+
+	public function pickupPhone(enable, x:Float, y:Float) {
+		if (enable) {
+			if (!phoning) {
+				Game.getInstance().sound.playWobble(hxd.Res.sound.pickupphone);
+			}
+			gfx.animation.currentFrame = 1;
+			this.x = x + 100.;
+			this.y = y - 150.;
+			targetX = x + 300;
+			targetY = y + 150;
+		} else {
+			if (phoning) {
+				Game.getInstance().sound.playWobble(hxd.Res.sound.phoneputdown);
+			}
+			gfx.animation.currentFrame = 0;
+			targetY = Game.getInstance().s2d.height - 160;
+			this.x = x + 100.;
+			this.y = y - 150.;
+		}
+		phoning = enable;
 	}
 
 	override function update(dt:Float) {
@@ -63,9 +89,14 @@ class Hand extends Entity2D {
 
 		if (!pressing && !dragging) {
 			gfx.x = Math.sin(time * 0.7) * 4;
-			gfx.y = Math.cos(time * 0.4) * 4;
-			x += (defaultX - x) * 0.1;
-			y += (targetY - y) * 0.06;
+            gfx.y = Math.cos(time * 0.4) * 4;
+			if (!phoning) {
+				x += (defaultX - x) * 0.2;
+				y += (targetY - y) * 0.16;
+			} else {
+				x += (targetX - x) * 0.1;
+			    y += (targetY - y) * 0.06;
+			}
 		} else if (pressing) {
 			x = targetX;
 			y = targetY - 35 + T.bounceOut(pTime) * 35;

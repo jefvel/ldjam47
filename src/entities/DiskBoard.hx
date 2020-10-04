@@ -108,27 +108,44 @@ class DiskBoard extends Entity2D {
 		var c = new CombinedMarker(laneContainer, markers);
     }
 
-	var slowingLane = null;
+    var slowingLane = null;
+    
+	public function slowLane(index) {
+		resetSpeeds();
+		slowingLane = lanes[index];
+		lanes[index].speed = -0.5;
 
+		if (onActivateLane != null) {
+			onActivateLane(slowingLane, true);
+		}
+	}
+
+	public function resetSpeeds() {
+		for (l in lanes) {
+			l.speed = 1.0;
+		}
+
+		if (onActivateLane != null) {
+			onActivateLane(slowingLane, false);
+		}
+		slowingLane = null;
+	}
 	public function onEvent(e:hxd.Event) {
+
 		if (e.kind == EPush) {
 			if (hoveredLaneIndex != -1) {
-                slowingLane = lanes[hoveredLaneIndex];
-				slowingLane.speed = -0.5;
-				if (onActivateLane != null) {
-					onActivateLane(slowingLane, true);
-				}
+				if (e.button == 0) {
+					slowLane(hoveredLaneIndex);
+                }
 			}
 		}
 
 		if (e.kind == ERelease) {
 			if (slowingLane != null) {
-				slowingLane.speed = 1.0;
-				if (onActivateLane != null) {
-					onActivateLane(slowingLane, false);
+				if (e.button == 0) {
+					resetSpeeds();
 				}
-				slowingLane = null;
-			}
+            }
 		}
 	}
     
