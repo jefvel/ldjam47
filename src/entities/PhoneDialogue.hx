@@ -40,89 +40,23 @@ enum abstract PhoneEvent(Int) to Int {
     var PhoneEventMax = 27;
 }
 
-class Call extends Entity2D {
+class PhoneDialogue extends Entity2D {
+    public var texts:Array<String>;
+
+    // Flag for that the last dialog was interrupted by user action
+    var userStopped = false;
+    
     var talkBubble:Sprite;
     var talkText:Text;
-    var userStopped = false;
-    var isFinished = false;
+
+    // Flag for that dialog is over
+    var isFinished = true;
 
     var currentText:Int;
     var greetingDurationPerCharacter = 80;
     var durationPerCharacter = 50; // milliseconds
     var duration:Array<Float>; // seconds
     var time:Float;
-
-    public var texts:Array<String>;
-
-    public function new(?parent) {
-        super(parent);
-        talkBubble = Res.img.talk_bubble_tilesheet.toSprite2D(this);
-        talkBubble.x = -385;
-
-        talkText = new Text(hxd.res.DefaultFont.get());
-        talkText.textColor = 0x0000000;
-        talkText.textAlign = Center;
-        talkText.text = "PLACEHOLDER";
-
-        talkBubble.addChild(talkText);
-    }
-
-    public function PutText(events:Array<Int>) {
-        texts = new Array<String>();
-        duration = new Array<Float>();
-        for (i in 0...events.length) {
-            var t = callDialogueMap[events[i]];
-            if (t != null) {
-                texts.push(t);
-                duration[i] = (durationPerCharacter * t.length) / 1000;
-            }
-        }
-        talkText.text = texts[0];
-        talkText.x = -talkBubble.x / 2;
-        talkText.y = 48;
-        
-        userStopped = false;
-        isFinished = false;
-    }
-
-	override function update(dt:Float) {
-        if (userStopped || isFinished) {
-            // Reset
-            currentText = 0;
-            time = 0.;
-            return;
-        }
-
-        if (!talkBubble.visible) {
-            talkBubble.visible = true;
-        }
-
-        if (texts.length > 0) {
-            time += dt;
-    
-            if (time > duration[currentText]) {
-                time = 0.;
-                currentText++;
-                if (currentText >= texts.length) {
-                    isFinished = true;
-                    talkBubble.visible = false;
-                    return;
-                }
-    
-                // Set text
-                talkText.text = texts[currentText];
-            }
-        }
-    }
-
-    public function UserStop() {
-        userStopped = true;
-        talkBubble.visible = false;
-    }
-
-    public function IsFinished() {
-        return isFinished;
-    }
 
     public static final callDialogueMap:Map<Int, String> = [
         ManagerCallGreetingA => "Privyet, soviet worker!",
@@ -139,7 +73,7 @@ class Call extends Entity2D {
         ManagerCallMainC1 => "The komisar wanted me to\ntell you that you are NOT to leave the shop\nuntil all vinyls are finished!",
         ManagerCallMainC2 => "Some things are just for those\nwho earned them.",
         ManagerCallMainC3 => "Workers of the people work hard\nif they wanna play hard!",
-        ManagerCallMainD1 => "Komrad, you are worst performing of\nALL eastern bloc!",
+        ManagerCallMainD1 => "Komrad, you are worst performing in\nALL eastern bloc!",
         ManagerCallMainD2 => "We pay you daily and you work like\nyankee doodle work on weight loss?",
         ManagerCallMainD3 => "Look at Indian komrad Gandhi,\nhe fix nation on zero salary.\nYou barely fix vinyls?!",
         ManagerCallMainE1 => "If you want make motherland proud you\need step up!",
@@ -149,21 +83,26 @@ class Call extends Entity2D {
         ManagerCallGoodbyeB => "Disgusting.",
         ManagerCallGoodbyeC => "Dasvidanya komrad lesser citizen!",
     ];
-}
-
-class PhoneDialogue extends Entity2D {
-    var phoneUserStopped = false;
-    var currentCall:Call;
 
 	public function new(?parent) {
         super(parent);
+        talkBubble = Res.img.talk_bubble_tilesheet.toSprite2D(this);
+        talkBubble.x = -196;
+        talkBubble.y = -94;
+
+        talkText = new Text(hxd.res.DefaultFont.get());
+        talkText.textColor = 0x0000000;
+        talkText.textAlign = Center;
+        talkText.text = "PLACEHOLDER";
+
+        talkBubble.addChild(talkText);
+        talkText.x += 2.3 * talkBubble.getBounds().width;
+        talkText.y += 2.5 * talkBubble.getBounds().height;
+
+        visible = false;
     }
 
     public function MakeCall() {
-        if (currentCall == null) {
-            currentCall = new Call(this);
-        }
-
         var mainCall = [
             ManagerCallMainA1,
             ManagerCallMainA2,
@@ -208,7 +147,8 @@ class PhoneDialogue extends Entity2D {
             i++;
         }
 
-        var greeting = phoneUserStopped ? [
+        // Select call opening
+        var greeting = userStopped ? [
             MathInt.RandomWithinInterval(ManagerCallGreetingAngryA, ManagerCallGreetingAngryMax)
         ]:[
             MathInt.RandomWithinInterval(ManagerCallGreetingA, ManagerCallGreetingMax)
@@ -217,15 +157,67 @@ class PhoneDialogue extends Entity2D {
         var events = greeting.concat(mainCall).concat([
             MathInt.Max(ManagerCallGoodbyeA, Math.floor(Math.random() * ManagerCallGoodbyeMax) - ManagerCallGoodbyeA),
         ]);
-        currentCall.PutText(events);
+        
+        // Push dialogue strings to talk bubble
+        texts = new Array<String>();
+        duration = new Array<Float>();
+        for (i in 0...events.length) {
+            var t = callDialogueMap[events[i]];
+            if (t != null) {
+                texts.push(t);
+                duration[i] = (durationPerCharacter * t.length) / 1000;
+            }
+        }
+        talkText.text = texts[0];
 
-        phoneUserStopped = false;
+        // Reset stopping params
+        isFinished = false;
+        userStopped = false;
     }
 
-    public function StopCall() {
-        if (!currentCall.IsFinished()) {
-            phoneUserStopped = true;
-            currentCall.UserStop();
+    // Returns whether phone was stopped or not
+    public function StopCall():Bool {
+        if (!isFinished) {
+            isFinished = false;
+            userStopped = true;
+            visible = false;
+            return true;
+        }
+        return false;
+    }
+
+    private function PutText(events:Array<Int>) {
+    }
+
+	override function update(dt:Float) {
+        super.update(dt);
+
+        if (userStopped || isFinished) {
+            // Reset
+            currentText = 0;
+            time = 0.;
+            return;
+        }
+
+        if (!visible) {
+            visible = true;
+        }
+
+        if (texts.length > 0) {
+            time += dt;
+    
+            if (time > duration[currentText]) {
+                time = 0.;
+                currentText++;
+                if (currentText >= texts.length) {
+                    isFinished = true;
+                    visible = false;
+                    return;
+                }
+    
+                // Set text
+                talkText.text = texts[currentText];
+            }
         }
     }
 }

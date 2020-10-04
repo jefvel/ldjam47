@@ -37,6 +37,15 @@
    },
    {
     "filename": "hand 4.aseprite",
+    "frame": { "x": 0, "y": 513, "w": 256, "h": 512 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 256, "h": 512 },
+    "sourceSize": { "w": 256, "h": 512 },
+    "duration": 100
+   },
+   {
+    "filename": "hand 5.aseprite",
     "frame": { "x": 257, "y": 513, "w": 256, "h": 512 },
     "rotated": false,
     "trimmed": false,

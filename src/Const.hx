@@ -11,6 +11,6 @@ class Const {
     public static inline final TICK_RATE = 60;
     public static inline final TICK_TIME = 1.0 / TICK_RATE;
     
-    public static inline final PHONE_CALL_BASE_INTERVAL = 30;
+    public static inline final PHONE_CALL_BASE_INTERVAL = 20;
     public static inline final DAY_DURATION = 2;
 }
