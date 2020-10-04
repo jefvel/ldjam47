@@ -48,7 +48,7 @@ class Game extends hxd.App {
         // Image filtering set to nearest sharp pixel graphics
         hxd.res.Image.DEFAULT_FILTER = Nearest;
 
-		engine.backgroundColor = 0x554565;
+		engine.backgroundColor = 0x3e3646;
         engine.autoResize = true;
 
         if (Const.PIXEL_SIZE > 1) {

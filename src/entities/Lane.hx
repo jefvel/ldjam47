@@ -20,7 +20,8 @@ class LaneMarker extends Object {
 		marker.animation.play("Loop");
 		this.progress = progress;
 		marker.x = Std.int(-15 * 0.5);
-		marker.y = Std.int(-32);
+        marker.y = Std.int(-32);
+		alpha = 0 - Math.random() * 0.3;
     }
     
 	override function onRemove() {
@@ -29,7 +30,8 @@ class LaneMarker extends Object {
 	}
 
 	override function sync(ctx:RenderContext) {
-		super.sync(ctx);
+        super.sync(ctx);
+		alpha += ctx.elapsedTime / 0.3;
 		var p = Math.PI * progress;
 		rotation = p;
 		var a = p - Math.PI * 0.5;

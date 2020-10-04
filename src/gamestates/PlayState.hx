@@ -1,5 +1,7 @@
 package gamestates;
 
+import entities.Radio;
+import entities.NumberMeter;
 import entities.Rope;
 import entities.PhoneGfx;
 import h2d.Bitmap;
@@ -26,6 +28,8 @@ class PlayState extends gamestate.GameState {
 	var pay:Pay;
 
 	var phoneDialogue:PhoneDialogue;
+	var phoneTimer = 0.;
+	var phoneStressFactor = 1.;
 
 	var board:DiskBoard;
 
@@ -51,6 +55,12 @@ class PlayState extends gamestate.GameState {
 	public var phone:PhoneGfx;
 	public var phoneRope:Rope;
 
+	public var numberMeter:NumberMeter;
+
+	public var radio:Radio;
+
+	var music:hxd.snd.Channel;
+
 	override function onEnter() {
 		super.onEnter();
 		current = this;
@@ -64,6 +74,7 @@ class PlayState extends gamestate.GameState {
 		board = new DiskBoard(container);
 		pay = new Pay(container);
 		meter = new Meter(container);
+		meter.max = 42;
 
 		buttons = new Buttons(container, board.laneCount);
 		buttons.x = 90;
@@ -80,7 +91,9 @@ class PlayState extends gamestate.GameState {
 		handle.onPull = onHandlePull;
 		handle.onEndPull = onHandleRelease;
 
-		phoneRope = new Rope(container);
+		phoneRope = new Rope(container, 10);
+
+		radio = new Radio(container);
 
 		hand = new Hand(container);
 		rightHand = new Hand(container);
@@ -90,17 +103,49 @@ class PlayState extends gamestate.GameState {
 		buttons.onPress = onPressButton;
 		buttons.onRelease = onReleaseButton;
 
+		numberMeter = new NumberMeter(machineBack);
+		numberMeter.x = 300;
+		numberMeter.y = 267;
+		numberMeter.value = 0;
+
+		var fx = new hxd.snd.effect.LowPass();
+		fx.gainHF = 0.01;
+
+		var idleSound:Channel = null;
+
 		phone.onPush = () -> {
-			phoneDialogue.MakeCall();
 			phone.bm.visible = false;
 			rightHand.pickupPhone(true, phone.x, phone.y);
+			hand.grab(true, radio.x, radio.y);
+			radio.grab();
+			music.addEffect(fx);
+
+			if (!phone.ringing) {
+				idleSound = game.sound.playSfx(hxd.Res.sound.phoneempty, 0.2, true);
+			} else {
+				phoneDialogue.MakeCall();
+			}
+
+			phone.stopRinging();
 		}
 
 		phone.onRelease = () -> {
-			phoneDialogue.StopCall();
+			if (phoneDialogue.StopCall() && !phone.ringing) {
+				phone.startRinging();
+			}
+
 			phone.bm.visible = true;
 			rightHand.pickupPhone(false, phone.x + 30, phone.y + 30);
+			radio.release();
+			music.removeEffect(fx);
+			hand.grab(false, radio.x + radio.bm.x, radio.y + radio.bm.y);
+			if (idleSound != null) {
+				idleSound.stop();
+				idleSound = null;
+			}
 		}
+
+		music = game.sound.playMusic(hxd.Res.music.music1, 0.5, 1.0);
 	}
 
 	function onActivateLane(lane:Lane, activated) {
@@ -159,11 +204,20 @@ class PlayState extends gamestate.GameState {
 				var r = bouncyBoys.shift();
 				if (r != null) {
 					r.eject();
+					game.sound.playWobble(hxd.Res.sound.eject, 0.2);
+					numberMeter.value++;
 				} else {
 					handle.stopDrag();
 					handle.show(false);
 				}
 			}
+		}
+
+		if (phoneTimer > Const.PHONE_CALL_BASE_INTERVAL * phoneStressFactor && !phone.ringing && !rightHand.phoning) {
+			phone.startRinging();
+			phoneTimer = 0.;
+		} else {
+			phoneTimer += dt;
 		}
 
 		if (!handle.shown) {
@@ -181,8 +235,7 @@ class PlayState extends gamestate.GameState {
 		rightHand.defaultX = game.s2d.width + 40; 
 
 		time += dt;
-		
-		machineBack.y = 44;
+		machineBack.y = Math.max(40, game.s2d.height * 0.15);
 		machineBack.x = (game.s2d.width - machineBack.tile.width) * 0.5; // buttons.x - 25;
 
 		buttons.x = machineBack.x + 20;
@@ -213,6 +266,9 @@ class PlayState extends gamestate.GameState {
 		phoneRope.anchor.x = machineBack.x + machineBack.width - 20;
 		phoneRope.anchor.y = machineBack.y + 190;
 
+		radio.x = machineBack.x + 110;
+		radio.y = -20;
+
 		var lp = phoneRope.points[phoneRope.points.length - 1];
 		lp.fixed = true;
 		var p = lp.p;
@@ -232,5 +288,11 @@ class PlayState extends gamestate.GameState {
 	override function onLeave() {
 		super.onLeave();
 		container.remove();
+	}
+
+	// Primarily to speed up phone call frequency but would be cool to unify
+	// advancing game stress in single function
+	function advanceStressFactor() {
+		phoneStressFactor *= 0.8;
 	}
 }
