@@ -10,4 +10,7 @@ class Const {
 
     public static inline final TICK_RATE = 60;
     public static inline final TICK_TIME = 1.0 / TICK_RATE;
+    
+    public static inline final MORNING_DURATION = 30;
+    public static inline final DAY_DURATION = 2;
 }
