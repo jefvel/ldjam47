@@ -1,5 +1,6 @@
 package gamestates;
 
+import h3d.scene.pbr.Light;
 import entities.AlarmBeeper;
 import hxd.Perlin;
 import h2d.Tile;
@@ -65,6 +66,11 @@ class PlayState extends gamestate.GameState {
 	public var basketFull = false;
 
 	public var warningLamp:AlarmBeeper;
+
+	public var darkness:Bitmap;
+	public var emergencyLight:Bitmap;
+
+	var overlays:Object;
 
 	override function onEnter() {
 		super.onEnter();
@@ -169,8 +175,44 @@ class PlayState extends gamestate.GameState {
 
 		// phone.startRinging();
 
-		topBorder = new Bitmap(Tile.fromColor(0x030303), container);
-		bottomBorder = new Bitmap(Tile.fromColor(0x030303), container);
+		overlays = new Object(game.s2d);
+
+		topBorder = new Bitmap(Tile.fromColor(0x030303), overlays);
+		bottomBorder = new Bitmap(Tile.fromColor(0x030303), overlays);
+
+		darkness = new Bitmap(Tile.fromColor(0x0b0e1e), overlays);
+		darkness.alpha = 0.;
+
+		emergencyLight = new Bitmap(Tile.fromColor(0x4d1013), overlays);
+		// emergencyLight.blendMode = Multiply;
+		emergencyLight.alpha = 0;
+	}
+
+	var lightsBroken = false;
+
+	public function breakLights() {
+		if (lightsBroken) {
+			return;
+		}
+
+		lightsBroken = true;
+		var elapsed = 0.;
+		var lightProcess = new Process();
+		lightProcess.updateFn = dt -> {
+			elapsed += dt;
+			elapsed *= 1.2;
+			var s = Math.sin(elapsed * 150) > 0 ? 1. : 0;
+			darkness.alpha = s * (0.7 + Math.random() * 0.3);
+			if (elapsed > 2.9) {
+				lightProcess.remove();
+				darkness.alpha = 0.8;
+			}
+		}
+	}
+
+	public function startEmergencyLights() {
+		darkness.alpha = .1;
+		emergencyLight.alpha = 0.5;
 	}
 
 	var adjustingRadio = false;
@@ -227,9 +269,11 @@ class PlayState extends gamestate.GameState {
 	var shakeIntensity = 0.;
 
 	var machineryBreakSound:hxd.snd.Channel;
+	var alarmSound:hxd.snd.Channel;
 
 	var normalShake = 0.4;
 	var panicShake = 0.8;
+	var extremePanicShake = 0.93;
 
 	public function startShaking(intensity = 0.0) {
 		shakeIntensity = intensity;
@@ -243,7 +287,7 @@ class PlayState extends gamestate.GameState {
 					music.fadeTo(0.1, 0.7);
 				}
 				machineryBreakSound = game.sound.playSfx(hxd.Res.sound.machineryberak, 0.0, true);
-				machineryBreakSound.fadeTo(0.2, 0.5);
+				machineryBreakSound.fadeTo(0.3, 1.0);
 			}
 		} else {
 			if (machineryBreakSound != null) {
@@ -253,6 +297,21 @@ class PlayState extends gamestate.GameState {
 				});
 				machineryBreakSound = null;
 				music.fadeTo(0.5, 0.7);
+			}
+		}
+		if (intensity > extremePanicShake) {
+			if (alarmSound == null) {
+				alarmSound = game.sound.playSfx(hxd.Res.sound.alarm, 0.0, true);
+				alarmSound.fadeTo(0.3, 0.5);
+			}
+			breakLights();
+		} else {
+			if (alarmSound != null) {
+				var snd = alarmSound;
+				alarmSound.fadeTo(0, 0.2, () -> {
+					snd.stop();
+				});
+				alarmSound = null;
 			}
 		}
 	}
@@ -365,17 +424,23 @@ class PlayState extends gamestate.GameState {
 		startShaking(panicLevel);
 
 		if (shaking) {
-			var shake = Math.max(0, shakeIntensity - normalShake);
+			var shake = Math.max(0, (shakeIntensity - normalShake) * (1 / normalShake));
 			container.x = perlin.perlin1D(4, time * 20., 4) * 3 * shake;
 			container.y = perlin.perlin1D(8, time * 9., 3) * 2.5 * shake;
 		}
 
 		basketFull = bouncyBoys.length >= basketSize;
 		warningLamp.activated = basketFull;
+		darkness.width = game.s2d.width;
+		darkness.height = game.s2d.height;
+
+		emergencyLight.width = darkness.width;
+		emergencyLight.height = darkness.height;
 	}
 
 	override function onLeave() {
 		super.onLeave();
 		container.remove();
+		overlays.remove();
 	}
 }

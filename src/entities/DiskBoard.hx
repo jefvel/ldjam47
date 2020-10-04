@@ -133,12 +133,16 @@ class DiskBoard extends Entity2D {
 	}
 
 	public function onEvent(e:hxd.Event) {
-
 		if (e.kind == EPush) {
 			if (hoveredLaneIndex != -1) {
 				if (e.button == 0) {
 					slowLane(hoveredLaneIndex);
-                }
+				}
+				#if debug
+				if (e.button == 1) {
+					spawnMarkers();
+				}
+				#end
 			}
 		}
 
@@ -153,6 +157,13 @@ class DiskBoard extends Entity2D {
     
 	var spawnTime = 3.36;
 
+	function spawnMarkers() {
+		for (l in lanes) {
+			var r = 0.2 * Math.random();
+			l.addMarker(r);
+		}
+	}
+
 	override function update(dt:Float) {
         t += dt;
 
@@ -163,10 +174,7 @@ class DiskBoard extends Entity2D {
 			if (spawnTime < minSpawnTime) {
 				spawnTime = minSpawnTime;
 			}
-			for (l in lanes) {
-				var r = 0.2 * Math.random();
-				l.addMarker(r);
-			}
+			spawnMarkers();
         }
         
 		markers.splice(0, markers.length);

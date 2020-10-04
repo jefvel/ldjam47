@@ -45,6 +45,8 @@ class Game extends hxd.App {
         entities = new entity.Entities();
     }
 
+	public var processes:Array<Process> = [];
+
     function configRenderer() {
         // Image filtering set to nearest sharp pixel graphics
         hxd.res.Image.DEFAULT_FILTER = Nearest;
@@ -72,9 +74,14 @@ class Game extends hxd.App {
 
         timeAccumulator += dt;
         while (timeAccumulator > Const.TICK_TIME && maxTicksPerUpdate > 0) {
-			timeAccumulator -= Const.TICK_TIME;
+            timeAccumulator -= Const.TICK_TIME;
+			for (p in processes) {
+				p.update(dt);
+			}
+
             states.update(Const.TICK_TIME);
             entities.update(Const.TICK_TIME);
+
             maxTicksPerUpdate --;
         }
     }
