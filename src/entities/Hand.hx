@@ -38,7 +38,7 @@ class Hand extends Entity2D {
 
 	public function reset() {
 		gfx.animation.currentFrame = 0;
-		targetY = Game.getInstance().s2d.height - 160;
+		targetY = defaultY;
 		this.x = x + 100.;
 		this.y = y - 150.;
 		targetX = defaultX;
@@ -48,7 +48,7 @@ class Hand extends Entity2D {
 
 	public function releasePush() {
 		gfx.animation.currentFrame = 0;
-		targetY = Game.getInstance().s2d.height - 160;
+		targetY = defaultY;
 		pressing = false;
 	}
 
@@ -81,13 +81,15 @@ class Hand extends Entity2D {
 			targetY = this.y;
 		} else {
 			gfx.animation.currentFrame = 0;
-			targetY = Game.getInstance().s2d.height - 160;
+			targetY = defaultY;
 			this.x = x + 100.;
             this.y = y - 150.;
 			reset();
 		}
 		phoning = enable;
 	}
+
+	public var defaultY = 100.;
 
 	public var phoning = false;
 	public function pickupPhone(enable, x:Float, y:Float) {
@@ -105,9 +107,10 @@ class Hand extends Entity2D {
 				Game.getInstance().sound.playWobble(hxd.Res.sound.phoneputdown);
 			}
 			gfx.animation.currentFrame = 0;
-			targetY = Game.getInstance().s2d.height - 160;
+			targetY = defaultY;
 			this.x = x + 100.;
 			this.y = y - 150.;
+			reset();
 		}
 		phoning = enable;
 	}

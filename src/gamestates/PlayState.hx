@@ -1,5 +1,7 @@
 package gamestates;
 
+import entities.AlarmBeeper;
+import hxd.Perlin;
 import h2d.Tile;
 import entities.Radio;
 import entities.NumberMeter;
@@ -58,6 +60,12 @@ class PlayState extends gamestate.GameState {
 	var topBorder:Bitmap;
 	var bottomBorder:Bitmap;
 
+	var basketSize = 5;
+
+	public var basketFull = false;
+
+	public var warningLamp:AlarmBeeper;
+
 	override function onEnter() {
 		super.onEnter();
 		current = this;
@@ -91,10 +99,13 @@ class PlayState extends gamestate.GameState {
 		radio = new Radio(container);
 
 		hand = new Hand(container);
+		machineBack.y = Math.max(40, game.s2d.height * 0.15);
 		rightHand = new Hand(container);
 		rightHand.scaleX = -1;
 		rightHand.defaultX = game.s2d.width + 40;
+		hand.defaultY = rightHand.defaultY = machineBack.y + 140;
 		rightHand.reset();
+		hand.reset();
 
 		board.onActivateLane = onActivateLane;
 		buttons.onPress = onPressButton;
@@ -104,6 +115,10 @@ class PlayState extends gamestate.GameState {
 		numberMeter.x = 300;
 		numberMeter.y = 267;
 		numberMeter.value = 0;
+
+		warningLamp = new AlarmBeeper(machineBack);
+		warningLamp.x = 321;
+		warningLamp.y = 237;
 
 		var fx = new hxd.snd.effect.LowPass();
 		fx.gainHF = 0.01;
@@ -141,11 +156,13 @@ class PlayState extends gamestate.GameState {
 				idleSound = null;
 			}
 		}
+		music = game.sound.playMusic(hxd.Res.music.music1, 0.0, .1);
+
 		var snd = game.sound.playSfx(hxd.Res.sound.radionoise, 0.4, false);
 
 		adjustingRadio = true;
 		snd.onEnd = () -> {
-			music = game.sound.playMusic(hxd.Res.music.music1, 0.5, .1);
+			music.fadeTo(0.5, 0.1);
 			adjustingRadio = false;
 			hand.reset();
 		}
@@ -180,6 +197,9 @@ class PlayState extends gamestate.GameState {
 	var ejectTime = 0.1;
 	var currentEjectTime = 0.;
 
+	var perlin = new Perlin();
+	var shaking = false;
+
 	function onHandlePull() {
 		ejectingRods = true;
 		currentEjectTime = ejectTime;
@@ -203,6 +223,45 @@ class PlayState extends gamestate.GameState {
 	}
 
 	var time = 0.0;
+
+	var shakeIntensity = 0.;
+
+	var machineryBreakSound:hxd.snd.Channel;
+
+	var normalShake = 0.4;
+	var panicShake = 0.8;
+
+	public function startShaking(intensity = 0.0) {
+		shakeIntensity = intensity;
+		if (!shaking) {
+			shaking = true;
+		}
+
+		if (intensity > panicShake) {
+			if (machineryBreakSound == null) {
+				if (music != null) {
+					music.fadeTo(0.1, 0.7);
+				}
+				machineryBreakSound = game.sound.playSfx(hxd.Res.sound.machineryberak, 0.0, true);
+				machineryBreakSound.fadeTo(0.2, 0.5);
+			}
+		} else {
+			if (machineryBreakSound != null) {
+				var snd = machineryBreakSound;
+				machineryBreakSound.fadeTo(0, 0.2, () -> {
+					snd.stop();
+				});
+				machineryBreakSound = null;
+				music.fadeTo(0.5, 0.7);
+			}
+		}
+	}
+
+	public function stopShaking() {
+		if (shaking) {
+			shaking = false;
+		}
+	}
 
 	override function update(dt:Float) {
 		super.update(dt);
@@ -288,7 +347,6 @@ class PlayState extends gamestate.GameState {
 			hand.point(radio.x + radio.bm.x + 20 + Math.random() * 5, radio.y + radio.bm.y + 50 + Math.random() * 5);
 		}
 
-		meter.value = board.markers.length;
 		radio.y = machineBack.y - 70;
 
 		bottomBorder.width = game.s2d.width;
@@ -298,6 +356,22 @@ class PlayState extends gamestate.GameState {
 		topBorder.width = bottomBorder.width;
 		topBorder.height = 400;
 		topBorder.y = machineBack.y - 50 - topBorder.height;
+		hand.defaultY = rightHand.defaultY = machineBack.y + 140;
+
+		meter.value = board.markers.length;
+		var panicThreshold = 0.3;
+		var panicLevel = meter.value / meter.max;
+
+		startShaking(panicLevel);
+
+		if (shaking) {
+			var shake = Math.max(0, shakeIntensity - normalShake);
+			container.x = perlin.perlin1D(4, time * 20., 4) * 3 * shake;
+			container.y = perlin.perlin1D(8, time * 9., 3) * 2.5 * shake;
+		}
+
+		basketFull = bouncyBoys.length >= basketSize;
+		warningLamp.activated = basketFull;
 	}
 
 	override function onLeave() {

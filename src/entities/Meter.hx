@@ -63,6 +63,13 @@ class Meter extends Entity2D {
         var startRotation = -Math.PI * 0.45;
         var endRotation = Math.PI * 0.45;
 
-        stick.rotation = startRotation + (v / max) * (endRotation - startRotation);
+		var val = (v / max);
+		var rotateOffset = 0.0;
+		if (val > 0.9) {
+			rotateOffset = Math.random() * 0.1;
+			val = Math.min(1.0, val);
+		}
+
+		stick.rotation = startRotation + (val + rotateOffset) * (endRotation - startRotation);
     }
 }
