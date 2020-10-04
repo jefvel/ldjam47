@@ -1,5 +1,6 @@
 package entities;
 
+import h2d.RenderContext;
 import graphics.Sprite;
 import h2d.Text;
 import hxd.Res;
@@ -86,9 +87,7 @@ class PhoneDialogue extends Entity2D {
 
 	public function new(?parent) {
         super(parent);
-        talkBubble = Res.img.talk_bubble_tilesheet.toSprite2D(this);
-        talkBubble.x = -196;
-        talkBubble.y = -94;
+		talkBubble = Res.img.talk_bubble_tilesheet.toSprite2D(this);
 
         talkText = new Text(hxd.res.DefaultFont.get());
         talkText.textColor = 0x0000000;
@@ -101,6 +100,15 @@ class PhoneDialogue extends Entity2D {
 
         visible = false;
     }
+
+	override function sync(ctx:RenderContext) {
+		super.sync(ctx);
+		var sc = talkBubble.getScene();
+		var b = getBounds();
+
+		talkBubble.x = (sc.width - b.width) * 0.5;
+		talkBubble.y = (sc.height - b.height) * 0.5;
+	}
 
     public function MakeCall() {
         var mainCall = [

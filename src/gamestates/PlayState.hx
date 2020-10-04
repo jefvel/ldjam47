@@ -97,8 +97,6 @@ class PlayState extends gamestate.GameState {
 		buttons.y = 82;
 
 		phone = new PhoneGfx(container);
-		phoneDialogue = new PhoneDialogue(phone);
-		phoneDialogue.y += game.s2d.height * 0.5;
 
 		cage = new Cage(container);
 
@@ -187,8 +185,6 @@ class PlayState extends gamestate.GameState {
 			hand.reset();
 		}
 
-		// phone.startRinging();
-
 		overlays = new Object(game.s2d);
 
 		topBorder = new Bitmap(Tile.fromColor(0x030303), overlays);
@@ -200,6 +196,7 @@ class PlayState extends gamestate.GameState {
 		emergencyLight = new Bitmap(Tile.fromColor(0x4d1013), overlays);
 		// emergencyLight.blendMode = Multiply;
 		emergencyLight.alpha = 0;
+		phoneDialogue = new PhoneDialogue(overlays);
 	}
 
 	var lightsBroken = false;
