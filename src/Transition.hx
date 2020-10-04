@@ -69,11 +69,16 @@ class Transition extends Interactive {
 	var circGraphics:Bitmap;
 	var f:TransitionFilter;
 
+	var alphaFade = true;
+
 	public function new(?parent) {
 		super(1, 1, parent);
 		circGraphics = new Bitmap(Tile.fromColor(0), this);
-		f = new TransitionFilter();
-		circGraphics.filter = f;
+		if (!alphaFade) {
+			f = new TransitionFilter();
+			circGraphics.filter = f;
+		}
+
 		cursor = Default;
 	}
 
@@ -85,8 +90,8 @@ class Transition extends Interactive {
 		parent.addChild(this);
 	}
 
-	var inTime = .3;
-	var outTime = .3;
+	var inTime = .5;
+	var outTime = .8;
 
 	var t = 0.0;
 
@@ -125,7 +130,11 @@ class Transition extends Interactive {
 
 		eased = T.smootherStepInOut(Math.min(1, Math.max(0, t)));
 		if (scalingOut) {
-			eased = 1 + (1 - eased);
+			if (alphaFade) {
+				eased = (eased);
+			} else {
+				eased = 1 + (1 - eased);
+			}
 		}
 
 		// var steps = 37;
@@ -133,7 +142,11 @@ class Transition extends Interactive {
 
 		circGraphics.width = width;
 		circGraphics.height = height;
-		f.progress = eased;
+		if (!alphaFade) {
+			f.progress = eased;
+		} else {
+			circGraphics.alpha = eased;
+		}
 	}
 
 	var onFinish:Void->Void;

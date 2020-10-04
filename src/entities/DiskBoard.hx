@@ -1,5 +1,6 @@
 package entities;
 
+import gamestates.PlayState;
 import graphics.Sprite;
 import hxd.Res;
 import h2d.col.Point;
@@ -133,13 +134,18 @@ class DiskBoard extends Entity2D {
 		}
 		slowingLane = null;
 	}
-	public function onEvent(e:hxd.Event) {
 
+	public function onEvent(e:hxd.Event) {
 		if (e.kind == EPush) {
 			if (hoveredLaneIndex != -1) {
 				if (e.button == 0) {
 					slowLane(hoveredLaneIndex);
-                }
+				}
+				#if debug
+				if (e.button == 1) {
+					spawnMarkers();
+				}
+				#end
 			}
 		}
 
@@ -154,19 +160,24 @@ class DiskBoard extends Entity2D {
     
 	var spawnTime = 3.36;
 
+	function spawnMarkers() {
+		for (l in lanes) {
+			var r = 0.2 * Math.random();
+			l.addMarker(r);
+		}
+	}
+
 	override function update(dt:Float) {
         t += dt;
 
 		if (t > spawnTime) {
             t -= spawnTime;
 			spawnTime -= 0.1;
-			if (spawnTime < 1) {
-				spawnTime = 1;
+			var minSpawnTime = .8;
+			if (spawnTime < minSpawnTime) {
+				spawnTime = minSpawnTime;
 			}
-			for (l in lanes) {
-				var r = 0.2 * Math.random();
-				l.addMarker(r);
-			}
+			spawnMarkers();
         }
         
 		markers.splice(0, markers.length);
@@ -177,24 +188,27 @@ class DiskBoard extends Entity2D {
 		}
 
 		/// Check if markers form rows
-		var lane = lanes[0];
-		for (marker in lane.markers) {
-			var markers = [marker];
-			for (l in lanes) {
-				if (l == lane) {
-					continue;
+		if (!PlayState.current.basketFull) {
+			var lane = lanes[0];
+			for (marker in lane.markers) {
+				var markers = [marker];
+				for (l in lanes) {
+					if (l == lane) {
+						continue;
+					}
+
+					var m = l.getClosestMarker(marker.progress);
+					if (m != null) {
+						markers.push(m);
+					}
 				}
 
-				var m = l.getClosestMarker(marker.progress);
-				if (m != null) {
-					markers.push(m);
+				if (markers.length == laneCount) {
+					combine(markers);
 				}
 			}
+		}
 
-			if (markers.length == laneCount) {
-				combine(markers);
-			}
-        }
 		// Check which row cursor is over
 		var d = new Point(game.s2d.mouseX, game.s2d.mouseY);
 		d.x -= (this.x + radius);

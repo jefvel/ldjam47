@@ -1,5 +1,9 @@
 package gamestates;
 
+import h3d.scene.pbr.Light;
+import entities.AlarmBeeper;
+import hxd.Perlin;
+import h2d.Tile;
 import entities.Radio;
 import entities.NumberMeter;
 import entities.Rope;
@@ -61,6 +65,20 @@ class PlayState extends gamestate.GameState {
 
 	var music:hxd.snd.Channel;
 
+	var topBorder:Bitmap;
+	var bottomBorder:Bitmap;
+
+	var basketSize = 5;
+
+	public var basketFull = false;
+
+	public var warningLamp:AlarmBeeper;
+
+	public var darkness:Bitmap;
+	public var emergencyLight:Bitmap;
+
+	var overlays:Object;
+
 	override function onEnter() {
 		super.onEnter();
 		current = this;
@@ -96,8 +114,13 @@ class PlayState extends gamestate.GameState {
 		radio = new Radio(container);
 
 		hand = new Hand(container);
+		machineBack.y = Math.max(40, game.s2d.height * 0.15);
 		rightHand = new Hand(container);
 		rightHand.scaleX = -1;
+		rightHand.defaultX = game.s2d.width + 40;
+		hand.defaultY = rightHand.defaultY = machineBack.y + 140;
+		rightHand.reset();
+		hand.reset();
 
 		board.onActivateLane = onActivateLane;
 		buttons.onPress = onPressButton;
@@ -108,12 +131,19 @@ class PlayState extends gamestate.GameState {
 		numberMeter.y = 267;
 		numberMeter.value = 0;
 
+		warningLamp = new AlarmBeeper(machineBack);
+		warningLamp.x = 321;
+		warningLamp.y = 237;
+
 		var fx = new hxd.snd.effect.LowPass();
 		fx.gainHF = 0.01;
 
 		var idleSound:Channel = null;
 
 		phone.onPush = () -> {
+			if (adjustingRadio) {
+				return;
+			}
 			phone.bm.visible = false;
 			rightHand.pickupPhone(true, phone.x, phone.y);
 			hand.grab(true, radio.x, radio.y);
@@ -134,6 +164,9 @@ class PlayState extends gamestate.GameState {
 				phone.startRinging();
 			}
 
+			if (adjustingRadio) {
+				return;
+			}
 			phone.bm.visible = true;
 			rightHand.pickupPhone(false, phone.x + 30, phone.y + 30);
 			radio.release();
@@ -144,9 +177,101 @@ class PlayState extends gamestate.GameState {
 				idleSound = null;
 			}
 		}
+		music = game.sound.playMusic(hxd.Res.music.music1, 0.0, .1);
 
-		music = game.sound.playMusic(hxd.Res.music.music1, 0.5, 1.0);
+		var snd = game.sound.playSfx(hxd.Res.sound.radionoise, 0.4, false);
+
+		adjustingRadio = true;
+		snd.onEnd = () -> {
+			music.fadeTo(0.5, 0.1);
+			adjustingRadio = false;
+			hand.reset();
+		}
+
+		// phone.startRinging();
+
+		overlays = new Object(game.s2d);
+
+		topBorder = new Bitmap(Tile.fromColor(0x030303), overlays);
+		bottomBorder = new Bitmap(Tile.fromColor(0x030303), overlays);
+
+		darkness = new Bitmap(Tile.fromColor(0x0b0e1e), overlays);
+		darkness.alpha = 0.;
+
+		emergencyLight = new Bitmap(Tile.fromColor(0x4d1013), overlays);
+		// emergencyLight.blendMode = Multiply;
+		emergencyLight.alpha = 0;
 	}
+
+	var lightsBroken = false;
+
+	var timeUntilExplosion = 3.0;
+	var offsetX = 0.;
+	var offsetY = 0.;
+
+	public function breakLights() {
+		if (lightsBroken) {
+			return;
+		}
+
+		game.sound.playSfx(hxd.Res.sound.explosion, 0.8);
+		var flash = new Bitmap(Tile.fromColor(0xFEFEFE), overlays);
+
+		lightsBroken = true;
+		var elapsed = 0.;
+		var lightProcess = new Process();
+		var exploded = false;
+		lightProcess.updateFn = dt -> {
+			elapsed += dt;
+			if (elapsed > 0.3) {
+				flash.remove();
+				if (!exploded) {
+					shake();
+					exploded = true;
+				}
+			} else {
+				flash.width = game.s2d.width;
+				flash.height = game.s2d.height;
+			}
+
+			var s = Math.sin(elapsed * 150) > 0 ? 1. : 0.5;
+			darkness.alpha = s * (0.7 + Math.random() * 0.3);
+			if (elapsed > 0.7) {
+				darkness.alpha = 0.8;
+				lightProcess.remove();
+			}
+		}
+	}
+
+	public function shake() {
+		offsetX = 40 - Math.random() * 80;
+		offsetY = 30 - Math.random() * 20;
+		var vx = .0;
+		var vy = .0;
+		var p = new Process();
+		var elapsed = 0.;
+		p.updateFn = dt -> {
+			elapsed += dt;
+			vx += -offsetX * 0.4;
+			vy += -offsetY * 0.4;
+			offsetX += vx;
+			offsetY += vy;
+			offsetX *= 0.94;
+			offsetY *= 0.92;
+			if (elapsed > 1.6) {
+				p.remove();
+				offsetX = 0;
+				offsetY = 0.;
+			}
+		}
+	}
+
+	public function startEmergencyLights() {
+		darkness.alpha = .1;
+		emergencyLight.alpha = 0.5;
+	}
+
+	var adjustingRadio = false;
 
 	function onActivateLane(lane:Lane, activated) {
 		if (activated) {
@@ -169,6 +294,9 @@ class PlayState extends gamestate.GameState {
 	var ejectingRods = false;
 	var ejectTime = 0.1;
 	var currentEjectTime = 0.;
+
+	var perlin = new Perlin();
+	var shaking = false;
 
 	function onHandlePull() {
 		ejectingRods = true;
@@ -193,6 +321,65 @@ class PlayState extends gamestate.GameState {
 	}
 
 	var time = 0.0;
+
+	var shakeIntensity = 0.;
+
+	var machineryBreakSound:hxd.snd.Channel;
+	var alarmSound:hxd.snd.Channel;
+
+	var normalShake = 0.4;
+	var panicShake = 0.8;
+	var extremePanicShake = 0.93;
+
+	public function shakeUpdate(intensity = 0.0, dt:Float) {
+		shakeIntensity = intensity;
+		if (!shaking) {
+			shaking = true;
+		}
+
+		if (intensity > panicShake) {
+			if (machineryBreakSound == null) {
+				if (music != null) {
+					music.fadeTo(0.1, 0.7);
+				}
+				machineryBreakSound = game.sound.playSfx(hxd.Res.sound.machineryberak, 0.0, true);
+				machineryBreakSound.fadeTo(0.3, 1.0);
+			}
+		} else {
+			if (machineryBreakSound != null) {
+				var snd = machineryBreakSound;
+				machineryBreakSound.fadeTo(0, 0.2, () -> {
+					snd.stop();
+				});
+				machineryBreakSound = null;
+				music.fadeTo(0.5, 0.7);
+			}
+		}
+		if (intensity > extremePanicShake) {
+			timeUntilExplosion -= dt;
+			if (timeUntilExplosion < 0) {
+				breakLights();
+				if (alarmSound == null) {
+					alarmSound = game.sound.playSfx(hxd.Res.sound.alarm, 0.0, true);
+					alarmSound.fadeTo(0.3, 0.5);
+				}
+			}
+		} else {
+			if (alarmSound != null) {
+				var snd = alarmSound;
+				alarmSound.fadeTo(0, 0.2, () -> {
+					snd.stop();
+				});
+				alarmSound = null;
+			}
+		}
+	}
+
+	public function stopShaking() {
+		if (shaking) {
+			shaking = false;
+		}
+	}
 
 	override function update(dt:Float) {
 		super.update(dt);
@@ -254,8 +441,8 @@ class PlayState extends gamestate.GameState {
 		meter.x = buttons.x;
 		meter.y = buttons.y - 48;
 
-		handle.x = game.s2d.width - 100;
-		handle.y = -32;
+		handle.x = machineBack.x + 440;
+		handle.y = machineBack.y - 50;
 
 		machineBack.width = machineBack.tile.width;
 		machineBack.height = machineBack.tile.height;
@@ -266,7 +453,7 @@ class PlayState extends gamestate.GameState {
 		phoneRope.anchor.x = machineBack.x + machineBack.width - 20;
 		phoneRope.anchor.y = machineBack.y + 190;
 
-		radio.x = machineBack.x + 110;
+		radio.x = machineBack.x + 120;
 		radio.y = -20;
 
 		var lp = phoneRope.points[phoneRope.points.length - 1];
@@ -281,13 +468,49 @@ class PlayState extends gamestate.GameState {
 			p.y = phone.y + 122;
 		}
 
-		meter.value = board.markers.length;
+		if (adjustingRadio) {
+			hand.point(radio.x + radio.bm.x + 20 + Math.random() * 5, radio.y + radio.bm.y + 50 + Math.random() * 5);
+		}
 
+		radio.y = machineBack.y - 70;
+
+		bottomBorder.width = game.s2d.width;
+		bottomBorder.height = 400;
+		bottomBorder.y = machineBack.y + 325;
+
+		topBorder.width = bottomBorder.width;
+		topBorder.height = 400;
+		topBorder.y = machineBack.y - 50 - topBorder.height;
+		hand.defaultY = rightHand.defaultY = machineBack.y + 140;
+
+		meter.value = board.markers.length;
+		var panicThreshold = 0.3;
+		var panicLevel = meter.value / meter.max;
+
+		shakeUpdate(panicLevel, dt);
+
+		if (shaking) {
+			var shake = Math.max(0, (shakeIntensity - normalShake) * (1 / normalShake));
+			container.x = perlin.perlin1D(4, time * 20., 4) * 3 * shake;
+			container.y = perlin.perlin1D(8, time * 9., 3) * 2.5 * shake;
+		}
+
+		container.x += offsetX;
+		container.y += offsetY;
+
+		basketFull = bouncyBoys.length >= basketSize;
+		warningLamp.activated = basketFull;
+		darkness.width = game.s2d.width;
+		darkness.height = game.s2d.height;
+
+		emergencyLight.width = darkness.width;
+		emergencyLight.height = darkness.height;
 	}
 
 	override function onLeave() {
 		super.onLeave();
 		container.remove();
+		overlays.remove();
 	}
 
 	// Primarily to speed up phone call frequency but would be cool to unify
