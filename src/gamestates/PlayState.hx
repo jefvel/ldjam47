@@ -1,5 +1,6 @@
 package gamestates;
 
+import graphics.Sprite;
 import entities.WallHanger;
 import hxd.Key;
 import hxd.Res;
@@ -41,8 +42,6 @@ class PlayState extends gamestate.GameState {
 
 	var board:DiskBoard;
 
-	var sparks:Particles;
-
 	var meter:Meter;
 
 	var bg:Bitmap;
@@ -57,6 +56,7 @@ class PlayState extends gamestate.GameState {
 	public var handle:Handle;
 
 	var machineBack:Bitmap;
+	var machineFire:Sprite;
 
 	public static var current:PlayState;
 
@@ -108,6 +108,9 @@ class PlayState extends gamestate.GameState {
 		lightLayer = new Object();
 
 		machineBack = new Bitmap(hxd.Res.img.machineback.toTile(), container);
+		machineFire = hxd.Res.img.machinefire_tilesheet.toSprite2D(machineBack);
+		machineFire.visible = false;
+		machineFire.animation.stop();
 
 		board = new DiskBoard(container);
 		pay = new Pay(container);
@@ -284,7 +287,7 @@ class PlayState extends gamestate.GameState {
 	var lastShake:Process;
 
 	var flashChance = 0.5;
-	public function shake() {
+	public function shake():Bool {
 		var doFlash = Math.random() < flashChance;
 		var flash:Bitmap = null;
 
@@ -329,6 +332,42 @@ class PlayState extends gamestate.GameState {
 				p.remove();
 				offsetX = 0;
 				offsetY = 0.;
+			}
+		}
+
+		return doFlash;
+	}
+
+	private function flash() {
+		var flash:Bitmap = null;
+
+		flash = new Bitmap(Tile.fromColor(0xFEFEFE), overlays);
+		flash.alpha = 0.7;
+		lightLayer.visible = false;
+
+		offsetX = -20 + Math.random() * 40; // 40 - Math.random() * 80;
+		offsetY = 15 - Math.random() * 30; // 30 - Math.random() * 20;
+		var vx = .0;
+		var vy = .0;
+		var p = new Process();
+		var elapsed = 0.;
+
+		if (lastShake != null) {
+			lastShake.remove();
+		}
+
+		lastShake = p;
+
+		p.updateFn = dt -> {
+			elapsed += dt;
+			if (flash != null) {
+				flash.width = game.s2d.width;
+				flash.height = game.s2d.height;
+				if (elapsed > 0.1) {
+					lightLayer.visible = true;
+					flash.remove();
+					p.remove();
+				}
 			}
 		}
 	}
@@ -430,6 +469,7 @@ class PlayState extends gamestate.GameState {
 				machineryBreakSound.fadeTo(0.3, 1.0);
 
 				emitSparksAmbient(1, 0.1 * game.s2d.width / 2, -0.25 * game.s2d.height / 2);
+				emitSmoke(machineBack.x - machineBack.width*0.5, machineBack.y + machineBack.height*0.9);
 			}
 		} else {
 			if (machineryBreakSound != null) {
@@ -458,6 +498,7 @@ class PlayState extends gamestate.GameState {
 			}
 
 			emitSparksAmbient(2, 0.25 * game.s2d.width / 2, 0.25 * game.s2d.height / 2);
+			emitSmoke(machineBack.x + machineBack.width*0.7, machineBack.y + machineBack.height*0.9);
 		} else {
 			if (alarmSound != null && !lightsBroken) {
 				var snd = alarmSound;
@@ -475,7 +516,7 @@ class PlayState extends gamestate.GameState {
 	public function checkExplosions(dt:Float) {
 		timeMinorExplosion -= dt;
 		if (timeMinorExplosion < 0) {
-			shake();
+			var didFlash = shake();
 			var explosions = [hxd.Res.sound.explosion, hxd.Res.sound.explosion2, hxd.Res.sound.explosion3,];
 			var snd = explosions[Std.int(Math.random() * explosions.length)];
 
@@ -499,10 +540,19 @@ class PlayState extends gamestate.GameState {
 			}
 			if (totalExplosions == 6) {
 				timeToNextMinorExplosion = 1.4;
+				if (didFlash && !machineFire.visible) {
+					machineFire.visible = true;
+					machineFire.animation.play();
+				}
 			}
 			if (totalExplosions == 7) {
 				handle.breakable = true;
 				timeToNextMinorExplosion = 0.9;
+				
+				if (!machineFire.visible) {
+					machineFire.visible = true;
+					machineFire.animation.play();
+				}
 			}
 
 			if (handle.broken) {
@@ -588,6 +638,8 @@ class PlayState extends gamestate.GameState {
 
 		board.y = machineBack.y - 5;
 		board.x = (game.s2d.width * 0.5) - board.radius;
+
+
 
 		cage.x = machineBack.x + 360;
 		cage.y = machineBack.y + 210;
@@ -730,17 +782,43 @@ class PlayState extends gamestate.GameState {
 		g.sizeRand = 0.8;
 		g.emitMode = Cone;
 		g.rotSpeed = 3;
-		g.rotSpeedRand = 0.2;
+		g.rotSpeedRand = 1;
 		g.speedRand = 0.7;
 		g.speed = 100;
-		g.speedRand = 3;
+		g.speedRand = 10;
 		g.gravity = 100;
-		g.speedRand *= 3;
 		g.life = 0.7;
 		g.lifeRand = 0.7;
 		g.emitLoop = false;
 		g.nparts = 24;
-		// g.
+		
+		particles.addGroup(g);
+		particles.x = x;
+		particles.y = y;
+
+		numEmits++;
+	}
+
+	public function emitSmoke(x:Float, y:Float) {
+		var smokeFrames = Res.img.smoke_tilesheet.frames;
+		var particles = new Particles(board);
+		var g = new ParticleGroup(particles);
+
+		g.animationRepeat = 0;
+		g.texture = smokeFrames[Math.round(Math.random() * 2)].tile.getTexture();
+		g.sizeRand = 0.8;
+		g.emitMode = Cone;
+		g.emitAngle = -0.15;
+		g.rotSpeed = 0.2;
+		g.rotSpeedRand = 0.1;
+		g.speed = 16;
+		g.speedRand = 0.2;
+		g.life = 0.7;
+		g.lifeRand = 0.7;
+		g.nparts = 18;
+		g.life = 15;
+		g.sizeIncr = 0.2;
+		
 		particles.addGroup(g);
 		particles.x = x;
 		particles.y = y;
