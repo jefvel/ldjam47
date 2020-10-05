@@ -25,7 +25,10 @@ class Game extends hxd.App {
 	public var entities:entity.Entities;
 	public var states:gamestate.GameStateHandler;
 
-	public var sound:Sounds;
+    public var sound:Sounds;
+    
+	public var mouseX:Float;
+	public var mouseY:Float;
 
     override function init() {
         super.init();

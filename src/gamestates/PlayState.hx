@@ -1,6 +1,7 @@
 package gamestates;
 
 import graphics.Sprite;
+import entities.WallHanger;
 import hxd.Key;
 import hxd.Res;
 import h2d.Particles;
@@ -89,6 +90,7 @@ class PlayState extends gamestate.GameState {
 	public var lightLayer:Object;
 
 
+	var calendar:WallHanger;
 	override function onEnter() {
 		super.onEnter();
 		current = this;
@@ -98,6 +100,10 @@ class PlayState extends gamestate.GameState {
 		container = new Object(game.s2d);
 
 		bg = new Bitmap(hxd.Res.img.ingamebg.toTile(), container);
+		calendar = new WallHanger(hxd.Res.img.calendar.toTile(), bg);
+		calendar.tile.dx = -73;
+		calendar.tile.dy = -2;
+		calendar.x = 700;
 
 		lightLayer = new Object();
 
@@ -109,7 +115,7 @@ class PlayState extends gamestate.GameState {
 		board = new DiskBoard(container);
 		pay = new Pay(container);
 		meter = new Meter(container);
-		meter.max = 42;
+		meter.max = 39;
 
 		buttons = new Buttons(container, board.laneCount);
 		buttons.x = 90;
@@ -264,7 +270,7 @@ class PlayState extends gamestate.GameState {
 			var s = Math.sin(elapsed * 150) > 0 ? 1. : 0.5;
 			darkness.alpha = s * (0.7 + Math.random() * 0.3);
 			if (elapsed > 0.7) {
-				darkness.alpha = 0.8;
+				darkness.alpha = 0.7;
 				lightProcess.remove();
 			}
 		}
@@ -508,6 +514,10 @@ class PlayState extends gamestate.GameState {
 
 			game.sound.playWobble(snd, 0.4, 0.03);
 			totalExplosions++;
+			if (totalExplosions == 1) {
+				calendar.makeFall();
+			}
+
 			if (totalExplosions == 2) {
 				radio.destroy();
 				timeToNextMinorExplosion = 4;
@@ -521,8 +531,7 @@ class PlayState extends gamestate.GameState {
 				flashChance = 0.9;
 			}
 			if (totalExplosions == 6) {
-				timeToNextMinorExplosion = 1.0;
-
+				timeToNextMinorExplosion = 1.4;
 				if (didFlash && !machineFire.visible) {
 					machineFire.visible = true;
 					machineFire.animation.play();
@@ -610,6 +619,7 @@ class PlayState extends gamestate.GameState {
 		rightHand.defaultX = machineBack.x + machineBack.tile.width + 120;
 		hand.defaultX = machineBack.x - 100;
 		bg.x = machineBack.x - 150;
+		bg.y = machineBack.y - 50;
 
 		time += dt;
 		machineBack.y = Math.max(40, game.s2d.height * 0.15);

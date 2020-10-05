@@ -87,7 +87,8 @@ class Handle extends Entity2D {
 		if (draggingNode == null) {
 			handleGfx.rotation = angle - Math.PI * 0.5;
 		} else {
-			var g = getScene();
+			var g = Game.getInstance();
+
 
 			draggingNode.p.x = g.mouseX - x;
 			draggingNode.p.y = g.mouseY - y;
