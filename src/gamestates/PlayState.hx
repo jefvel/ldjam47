@@ -93,6 +93,7 @@ class PlayState extends gamestate.GameState {
 	var particles:Particles;
 
 	var calendar:WallHanger;
+
 	override function onEnter() {
 		super.onEnter();
 		current = this;
@@ -105,7 +106,7 @@ class PlayState extends gamestate.GameState {
 		calendar = new WallHanger(hxd.Res.img.calendar.toTile(), bg);
 		calendar.tile.dx = -73;
 		calendar.tile.dy = -2;
-		calendar.x = 700; 
+		calendar.x = 700;
 
 		smokeParticles = new Particles(container);
 		smokeParticles.alpha = 0.3;
@@ -224,7 +225,6 @@ class PlayState extends gamestate.GameState {
 			hand.reset();
 		}
 
-
 		overlays = new Object(game.s2d);
 
 		game.s2d.addChild(lightLayer);
@@ -295,6 +295,7 @@ class PlayState extends gamestate.GameState {
 	var lastShake:Process;
 
 	var flashChance = 0.5;
+
 	public function shake():Bool {
 		var doFlash = Math.random() < flashChance;
 		var flash:Bitmap = null;
@@ -477,9 +478,6 @@ class PlayState extends gamestate.GameState {
 				}
 				machineryBreakSound = game.sound.playSfx(hxd.Res.sound.machineryberak, 0.0, true);
 				machineryBreakSound.fadeTo(0.3, 1.0);
-
-				emitSparksAmbient(1, 0.1 * game.s2d.width / 2, -0.25 * game.s2d.height / 2);
-				emitSmoke(machineBack.x + machineBack.tile.width * 0.5, machineBack.y + 290);
 			}
 		} else {
 			if (machineryBreakSound != null) {
@@ -506,13 +504,6 @@ class PlayState extends gamestate.GameState {
 			if (lightsBroken) {
 				checkExplosions(dt);
 			}
-
-			totalSmokesLeft--;
-			if (totalSmokesLeft > 0) {
-				emitSparksAmbient(2, 0.25 * game.s2d.width / 2, 0.25 * game.s2d.height / 2);
-				emitSmoke(machineBack.x + machineBack.tile.width * 0.5, machineBack.y + 100);
-			}
-
 		} else {
 			if (alarmSound != null && !lightsBroken) {
 				var snd = alarmSound;
@@ -526,6 +517,8 @@ class PlayState extends gamestate.GameState {
 
 	var timeMinorExplosion = 5.0;
 	var timeToNextMinorExplosion = 5.0;
+
+	var emits = 0;
 
 	public function checkExplosions(dt:Float) {
 		timeMinorExplosion -= dt;
@@ -544,6 +537,12 @@ class PlayState extends gamestate.GameState {
 				radio.destroy();
 				timeToNextMinorExplosion = 4;
 				flashChance = 0.6;
+
+				emitSparksAmbient(1, 0.1 * game.s2d.width / 2, -0.25 * game.s2d.height / 2);
+			}
+
+			if (totalExplosions == 3) {
+				emitSmoke(machineBack.x + machineBack.tile.width * 0.5, machineBack.y + 100);
 			}
 
 			if (totalExplosions == 5) {
@@ -551,21 +550,26 @@ class PlayState extends gamestate.GameState {
 				initFinish();
 				timeToNextMinorExplosion = 3;
 				flashChance = 0.9;
+				emitSparksAmbient(2, 0.25 * game.s2d.width / 2, 0.25 * game.s2d.height / 2);
 			}
 			if (totalExplosions == 6) {
 				timeToNextMinorExplosion = 1.4;
 				if (didFlash && !machineFire.visible) {
 					machineFire.visible = true;
 					machineFire.animation.play();
+					emitSparksAmbient(2, 0.25 * game.s2d.width / 2, 0.25 * game.s2d.height / 2);
+					emitSmoke(machineBack.x + machineBack.tile.width * 0.5, machineBack.y + 100);
 				}
 			}
 			if (totalExplosions == 7) {
 				handle.breakable = true;
 				timeToNextMinorExplosion = 0.9;
-				
+
 				if (!machineFire.visible) {
+					flash();
 					machineFire.visible = true;
 					machineFire.animation.play();
+					emitSmoke(machineBack.x + machineBack.tile.width * 0.5, machineBack.y + 100);
 				}
 			}
 
@@ -652,8 +656,6 @@ class PlayState extends gamestate.GameState {
 
 		board.y = machineBack.y - 5;
 		board.x = (game.s2d.width * 0.5) - board.radius;
-
-
 
 		cage.x = machineBack.x + 360;
 		cage.y = machineBack.y + 210;
@@ -804,7 +806,7 @@ class PlayState extends gamestate.GameState {
 		g.lifeRand = 0.7;
 		g.emitLoop = false;
 		g.nparts = 24;
-		
+
 		particles.addGroup(g);
 		particles.x = x;
 		particles.y = y;
@@ -829,10 +831,10 @@ class PlayState extends gamestate.GameState {
 		g.speedRand = 0.2;
 		g.life = 1.7;
 		g.lifeRand = 0.7;
-		g.nparts = 18;
+		g.nparts = 16;
 		g.life = 15;
 		g.sizeIncr = 0.1;
-		
+
 		smokeParticles.addGroup(g);
 		smokeParticles.x = x;
 		smokeParticles.y = y;
