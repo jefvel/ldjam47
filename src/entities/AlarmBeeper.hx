@@ -26,7 +26,9 @@ class AlarmBeeper extends Object {
 
 	function set_activated(active) {
 		if (active != activated) {
-			on.visible = active;
+			if (!active) {
+                on.visible = active;
+			}
 			elapsed = 0.0;
 			/*
 				if (active) {

@@ -29,14 +29,32 @@ class LaneMarker extends Object {
 		par.removeMarker(this);
 	}
 
+	public var flying = false;
+
+	public function shootAway() {
+		flying = true;
+		vx = Math.random() * 10 - 5;
+		vy = Math.random() * -5;
+	}
+
+	var vx = 0.;
+	var vy = 0.;
+
 	override function sync(ctx:RenderContext) {
         super.sync(ctx);
 		alpha += ctx.elapsedTime / 0.3;
 		var p = Math.PI * progress;
 		rotation = p;
 		var a = p - Math.PI * 0.5;
-		x = Math.cos(a) * radius;
-		y = Math.sin(a) * radius;
+		if (!flying) {
+			x = Math.cos(a) * radius;
+			y = Math.sin(a) * radius;
+		} else {
+			vx *= 0.98;
+			x += vx;
+			y += vy;
+			vy += 0.03;
+		}
 	}
 }
 

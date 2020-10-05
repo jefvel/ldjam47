@@ -1,5 +1,6 @@
 package entities;
 
+import gamestates.PlayState;
 import entities.Rope.RopePoint;
 import h2d.Interactive;
 import h2d.Bitmap;
@@ -54,9 +55,13 @@ class Handle extends Entity2D {
 		pushed = false;
 	}
 
+	public var broken = false;
+
 	var draggingNode:RopePoint;
 
 	var ropeDragChannel:hxd.snd.Channel;
+
+	var dragUntilBreak = 0.2;
 
 	override function update(dt:Float) {
 		var ps = rope.points;
@@ -85,11 +90,13 @@ class Handle extends Entity2D {
 			d.x -= p0.x;
 			d.y -= p0.y;
 			var l = d.length();
-			if (l > rope.ropeLength + 53) {
-				d.normalize();
-				d.scale(rope.ropeLength + 53);
-				draggingNode.p.x = p0.x + d.x;
-				draggingNode.p.y = p0.y + d.y;
+			if (!broken) {
+				if (l > rope.ropeLength + 53) {
+					d.normalize();
+					d.scale(rope.ropeLength + 53);
+					draggingNode.p.x = p0.x + d.x;
+					draggingNode.p.y = p0.y + d.y;
+				}
 			}
 
 			var currentLength = rope.getCurrentLength();
@@ -108,13 +115,21 @@ class Handle extends Entity2D {
 			}
 
 			if (currentLength > rope.ropeLength + 50) {
-				if (!pulling) {
-					pulling = true;
-					if (onPull != null) {
-						onPull();
+				if (breakable) {
+					dragUntilBreak -= dt;
+					if (dragUntilBreak <= 0) {
+						onBreak();
+					}
+				} else {
+					if (!pulling) {
+						pulling = true;
+						if (onPull != null) {
+							onPull();
+						}
 					}
 				}
 			} else {
+				dragUntilBreak = 0.2;
 				if (pulling) {
 					pulling = false;
 					if (onEndPull != null) {
@@ -122,6 +137,23 @@ class Handle extends Entity2D {
 					}
 				}
             }
+		}
+	}
+
+	function onBreak() {
+		if (broken) {
+			return;
+		}
+
+		Game.getInstance().sound.playWobble(hxd.Res.sound.ropesnap, 0.5);
+		PlayState.current.panicking = true;
+
+		PlayState.current.initFinish();
+
+		rope.points[0].fixed = false;
+		broken = true;
+		if (pulling) {
+			onEndPull();
 		}
 	}
 

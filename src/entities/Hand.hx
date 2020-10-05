@@ -1,5 +1,6 @@
 package entities;
 
+import gamestates.PlayState;
 import graphics.Sprite;
 import entity.Entity2D;
 
@@ -24,10 +25,15 @@ class Hand extends Entity2D {
 	public function push(x:Float, y:Float) {
 		targetX = x - 154;
 		targetY = y - 160;
-		gfx.animation.currentFrame = 2;
+		if (PlayState.current.panicking) {
+			gfx.animation.currentFrame = 4;
+			targetX += 70;
+			targetY -= 30;
+		} else {
+			gfx.animation.currentFrame = 2;
+		}
 		pressing = true;
 		pressTime = 0;
-		Game.getInstance().sound.playWobble(hxd.Res.sound.pushbutton, 0.3, 0.05);
     }
 
 	public function point(x:Float, y:Float) {

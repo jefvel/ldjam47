@@ -112,7 +112,24 @@ class DiskBoard extends Entity2D {
 		var c = new CombinedMarker(laneContainer, markers);
     }
 
-    var slowingLane = null;
+	var slowingLane = null;
+	
+	public function slam() {
+		var slamCount = 3;
+		for (l in lanes) {
+			for (m in l.markers) {
+				if (m.flying)
+					continue;
+				if (Math.random() > 0.6) {
+					m.shootAway();
+					slamCount--;
+					if (slamCount < 0) {
+						return;
+					}
+				}
+			}
+		}
+	}
     
 	public function slowLane(index) {
 		resetSpeeds();
@@ -200,7 +217,7 @@ class DiskBoard extends Entity2D {
 					}
 
 					var m = l.getClosestMarker(marker.progress);
-					if (m != null) {
+					if (m != null && !m.flying) {
 						markers.push(m);
 					}
 				}

@@ -39,7 +39,7 @@ class Game extends hxd.App {
         states = new GameStateHandler(this);
 
         // Launch with the hello world gamestate
-		states.setState(new gamestates.MenuState());
+		states.setState(new gamestates.EndState(123));
     }
 
     function initEntities() {

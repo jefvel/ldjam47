@@ -71,6 +71,8 @@ class PhoneGfx extends Object {
 			return;
 		}
 
+		i.onRelease(null);
+
 		PlayState.current.phoneRope.getEndPoint().v.set(5, -28);
 		Game.getInstance().sound.playWobble(hxd.Res.sound.phonebreak, 0.3, 0.05);
 		destroyed = true;

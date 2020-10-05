@@ -59,6 +59,8 @@ class PhoneDialogue extends Entity2D {
     var duration:Array<Float>; // seconds
     var time:Float;
 
+	var progress:DialogProgress;
+
     public static final callDialogueMap:Map<Int, String> = [
         ManagerCallGreetingA => "Privyet, soviet worker!",
         ManagerCallGreetingB => "Privyet!",
@@ -98,6 +100,10 @@ class PhoneDialogue extends Entity2D {
         talkText.x += 2.3 * talkBubble.getBounds().width;
         talkText.y += 2.5 * talkBubble.getBounds().height;
 
+		progress = new DialogProgress(talkBubble);
+		progress.x = 45;
+		progress.y = 80;
+
         visible = false;
     }
 
@@ -111,6 +117,8 @@ class PhoneDialogue extends Entity2D {
 	}
 
     public function MakeCall() {
+		progress.reset();
+
         var mainCall = [
             ManagerCallMainA1,
             ManagerCallMainA2,
@@ -185,6 +193,11 @@ class PhoneDialogue extends Entity2D {
 
     // Returns whether phone was stopped or not
     public function StopCall():Bool {
+		if (progress.done) {
+			isFinished = true;
+			visible = false;
+		}
+
         if (!isFinished) {
             isFinished = false;
             userStopped = true;

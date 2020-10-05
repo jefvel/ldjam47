@@ -32,7 +32,7 @@ class PlayState extends gamestate.GameState {
 	var pay:Pay;
 
 	var phoneDialogue:PhoneDialogue;
-	var phoneTimer = 0.;
+	var phoneTimer = 5.;
 	var phoneStressFactor = 1.;
 
 	var board:DiskBoard;
@@ -207,18 +207,20 @@ class PlayState extends gamestate.GameState {
 	var offsetX = 0.;
 	var offsetY = 0.;
 
+	public var panicking = false;
+
 	public function breakLights() {
 		if (lightsBroken) {
 			return;
 		}
 
 		game.sound.playSfx(hxd.Res.sound.explosion, 0.8);
-		var flash = new Bitmap(Tile.fromColor(0xFEFEFE), overlays);
 
 		lightsBroken = true;
 		var elapsed = 0.;
 		var lightProcess = new Process();
 		var exploded = false;
+		var flash = new Bitmap(Tile.fromColor(0xFEFEFE), overlays);
 		lightProcess.updateFn = dt -> {
 			elapsed += dt;
 			if (elapsed > 0.3) {
@@ -242,7 +244,16 @@ class PlayState extends gamestate.GameState {
 		}
 	}
 
+	var lastShake:Process;
 	public function shake() {
+		var doFlash = Math.random() > 0.5;
+		var flash:Bitmap = null;
+
+		if (doFlash) {
+			flash = new Bitmap(Tile.fromColor(0xFEFEFE), overlays);
+			flash.alpha = 0.7;
+		}
+
 		offsetX = -20 + Math.random() * 40; // 40 - Math.random() * 80;
 		offsetY = 15 - Math.random() * 30; // 30 - Math.random() * 20;
 		var vx = .0;
@@ -250,8 +261,22 @@ class PlayState extends gamestate.GameState {
 		var p = new Process();
 		var elapsed = 0.;
 
+		if (lastShake != null) {
+			lastShake.remove();
+		}
+
+		lastShake = p;
+
 		p.updateFn = dt -> {
 			elapsed += dt;
+			if (flash != null) {
+				flash.width = game.s2d.width;
+				flash.height = game.s2d.height;
+				if (elapsed > 0.1) {
+					flash.remove();
+				}
+			}
+
 			vx += -offsetX * 0.4;
 			vy += -offsetY * 0.4;
 			offsetX += vx;
@@ -278,9 +303,19 @@ class PlayState extends gamestate.GameState {
 		if (activated) {
 			var p = buttons.getButtonPos(lane.index);
 			hand.push(p.x, p.y);
+			if (panicking) {
+				rightHand.push(p.x + 520, p.y + 30);
+				game.sound.playWobble(hxd.Res.sound.pushbutton, 0.4, 0.05);
+				board.slam();
+			} else {
+				game.sound.playWobble(hxd.Res.sound.pushbutton, 0.3, 0.05);
+			}
 		} else {
 			buttons.releaseButtons();
 			hand.releasePush();
+			if (panicking) {
+				rightHand.releasePush();
+			}
 		}
 	}
 
@@ -372,7 +407,7 @@ class PlayState extends gamestate.GameState {
 				checkExplosions(dt);
 			}
 		} else {
-			if (alarmSound != null) {
+			if (alarmSound != null && !lightsBroken) {
 				var snd = alarmSound;
 				alarmSound.fadeTo(0, 0.2, () -> {
 					snd.stop();
@@ -383,11 +418,11 @@ class PlayState extends gamestate.GameState {
 	}
 
 	var timeMinorExplosion = 5.0;
+	var timeToNextMinorExplosion = 5.0;
 
 	public function checkExplosions(dt:Float) {
 		timeMinorExplosion -= dt;
 		if (timeMinorExplosion < 0) {
-			timeMinorExplosion = 3 + Math.random() * 5;
 			shake();
 			var explosions = [hxd.Res.sound.explosion, hxd.Res.sound.explosion2, hxd.Res.sound.explosion3,];
 			var snd = explosions[Std.int(Math.random() * explosions.length)];
@@ -396,11 +431,37 @@ class PlayState extends gamestate.GameState {
 			totalExplosions++;
 			if (totalExplosions == 2) {
 				radio.destroy();
+				timeToNextMinorExplosion = 4;
 			}
 
 			if (totalExplosions == 4) {
 				phone.destroy();
+				timeToNextMinorExplosion = 3;
 			}
+			if (totalExplosions >= 5) {
+				handle.breakable = true;
+				timeToNextMinorExplosion = 1;
+			}
+
+			if (handle.broken) {
+				timeToNextMinorExplosion = 1.;
+			}
+			timeMinorExplosion = timeToNextMinorExplosion + Math.random() * 2;
+		}
+	}
+
+	var finishing = false;
+
+	public function initFinish() {
+		if (finishing) {
+			return;
+		}
+		finishing = true;
+
+		var s = game.sound.playSfx(hxd.Res.sound.endsplosion, 0.9);
+		s.onEnd = () -> {
+			game.sound.sfxChannel.mute = true;
+			game.states.setState(new EndState(numberMeter.value));
 		}
 	}
 
@@ -433,7 +494,9 @@ class PlayState extends gamestate.GameState {
 			phone.startRinging();
 			phoneTimer = 0.;
 		} else {
-			phoneTimer += dt;
+			if (!rightHand.phoning) {
+				phoneTimer += dt;
+			}
 		}
 
 		if (!handle.shown) {
@@ -531,6 +594,7 @@ class PlayState extends gamestate.GameState {
 
 		if (shaking) {
 			var shake = Math.max(0, (shakeIntensity - normalShake) * (1 / normalShake));
+			shake = Math.min(shake, 1.1);
 			container.x = perlin.perlin1D(4, time * 20., 4) * 3 * shake;
 			container.y = perlin.perlin1D(8, time * 9., 3) * 2.5 * shake;
 		}
@@ -547,15 +611,23 @@ class PlayState extends gamestate.GameState {
 		emergencyLight.height = darkness.height;
 	}
 
-	override function onLeave() {
-		super.onLeave();
-		container.remove();
-		overlays.remove();
-	}
-
 	// Primarily to speed up phone call frequency but would be cool to unify
 	// advancing game stress in single function
 	function advanceStressFactor() {
 		phoneStressFactor *= 0.8;
+	}
+
+	override function onLeave() {
+		super.onLeave();
+		container.remove();
+		overlays.remove();
+		if (machineryBreakSound != null) {
+			machineryBreakSound.stop();
+			machineryBreakSound = null;
+		}
+		if (alarmSound != null) {
+			alarmSound.stop();
+			alarmSound = null;
+		}
 	}
 }
