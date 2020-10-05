@@ -233,7 +233,7 @@ class DiskBoard extends Entity2D {
 		}
 
 		// Check which row cursor is over
-		var d = new Point(game.s2d.mouseX, game.s2d.mouseY);
+		var d = new Point(game.mouseX, game.mouseY);
 		d.x -= (this.x + radius);
 		d.y -= (this.y + radius);
 

@@ -122,7 +122,7 @@ class Hand extends Entity2D {
 			this.x = x + 100.;
 			this.y = y - 150.;
 			targetX = x + 300;
-			targetY = y + 150;
+			targetY = y + 30;
 		} else {
 			if (phoning) {
 				Game.getInstance().sound.playWobble(hxd.Res.sound.phoneputdown);

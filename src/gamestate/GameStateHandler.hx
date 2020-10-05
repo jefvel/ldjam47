@@ -24,6 +24,11 @@ class GameStateHandler {
     }
 
     function onEvent(e : hxd.Event) {
+		if (e.kind == EPush || e.kind == EMove || e.kind == ERelease) {
+			game.mouseX = e.relX / Const.PIXEL_SIZE;
+			game.mouseY = e.relY / Const.PIXEL_SIZE;
+		}
+
         if (currentState != null) {
             currentState.onEvent(e);
         }
