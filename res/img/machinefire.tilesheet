@@ -1,0 +1,40 @@
+{ "frames": [
+   {
+    "filename": "machinefire 0.aseprite",
+    "frame": { "x": 0, "y": 0, "w": 509, "h": 346 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 509, "h": 346 },
+    "sourceSize": { "w": 509, "h": 346 },
+    "duration": 100
+   },
+   {
+    "filename": "machinefire 1.aseprite",
+    "frame": { "x": 510, "y": 0, "w": 509, "h": 346 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 509, "h": 346 },
+    "sourceSize": { "w": 509, "h": 346 },
+    "duration": 100
+   },
+   {
+    "filename": "machinefire 2.aseprite",
+    "frame": { "x": 0, "y": 347, "w": 509, "h": 346 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 509, "h": 346 },
+    "sourceSize": { "w": 509, "h": 346 },
+    "duration": 100
+   }
+ ],
+ "meta": {
+  "app": "http://www.aseprite.org/",
+  "version": "1.2.25-x64",
+  "image": "machinefire.png",
+  "format": "RGBA8888",
+  "size": { "w": 1019, "h": 693 },
+  "scale": "1",
+  "frameTags": [
+  ]
+ }
+}
