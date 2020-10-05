@@ -28,7 +28,7 @@ class Radio extends Object {
 		}
 
 		fx = new hxd.snd.effect.LowPass();
-		fx.gainHF = 0.01;
+		fx.gainHF = 0.04;
 		music = Game.getInstance().sound.playMusic(hxd.Res.music.music1, 0.0, .1);
 	}
 
@@ -92,5 +92,10 @@ class Radio extends Object {
 
 		var lp = ps[ps.length - 1];
 		lp.v.x += Math.sin(elapsed * 2) * 0.002;
+	}
+	public function stop() {
+		if (music != null) {
+			music.stop();
+		}
 	}
 }

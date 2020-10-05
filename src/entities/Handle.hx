@@ -8,6 +8,7 @@ import entity.Entity2D;
 
 class Handle extends Entity2D {
 	public var handleGfx:Bitmap;
+	var pullLabel:Bitmap;
     var rope : Rope;
     var btn:Interactive;
     public var pushed = false;
@@ -15,9 +16,14 @@ class Handle extends Entity2D {
 	public var breakable = false;
 
 	public function new(?parent) {
-        super(parent);
+		super(parent);
+
 
 		rope = new Rope(this, 8);
+		pullLabel = new Bitmap(hxd.Res.img.pullwhenfull.toTile(), this);
+		pullLabel.tile.dx = -4;
+		pullLabel.tile.dy = -16;
+
 		handleGfx = new Bitmap(hxd.Res.img.handle.toTile(), this);
 		handleGfx.tile.dx = -64;
 		handleGfx.tile.dy = -40;
@@ -62,6 +68,7 @@ class Handle extends Entity2D {
 	var ropeDragChannel:hxd.snd.Channel;
 
 	var dragUntilBreak = 0.2;
+
 
 	override function update(dt:Float) {
 		var ps = rope.points;
@@ -138,6 +145,24 @@ class Handle extends Entity2D {
 				}
             }
 		}
+		positionLabel();
+	}
+
+	function positionLabel() {
+		var pIndex = 2;
+		var ps = rope.points;
+		var p = ps[pIndex].p;
+		var p2 = ps[pIndex - 1].p;
+
+		pullLabel.x = p.x;
+		pullLabel.y = p.y;
+
+		var a = p.clone();
+		a.x -= p2.x;
+		a.y -= p2.y;
+
+		var angle = Math.atan2(a.y, a.x);
+		pullLabel.rotation = angle - Math.PI * 0.5;
 	}
 
 	function onBreak() {
@@ -148,7 +173,6 @@ class Handle extends Entity2D {
 		Game.getInstance().sound.playWobble(hxd.Res.sound.ropesnap, 0.5);
 		PlayState.current.panicking = true;
 
-		PlayState.current.initFinish();
 
 		rope.points[0].fixed = false;
 		broken = true;

@@ -41,7 +41,7 @@ class DialogProgress extends Entity2D {
 		Game.getInstance().sound.playWobble(hxd.Res.sound.progressfinish, 0.2);
 	}
 
-	var doneTimeMax = 0.4;
+	var doneTimeMax = 0.2;
 	var doneTime = 0.0;
 
 	public var done = false;

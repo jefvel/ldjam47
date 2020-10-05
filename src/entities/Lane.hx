@@ -65,6 +65,7 @@ class Lane extends Entity2D {
 	public var index = 0;
 	var highlightCircle:Graphics;
 	var boundaryCircle:Graphics;
+	var rotateArrows:Object;
 	
 	var boundaryCircleThickness = 2;
 
@@ -79,10 +80,35 @@ class Lane extends Entity2D {
 	public function new(?parent, radius, width, background) {
 		super(parent);
 		this.radius = radius;
-        markers = [];
+		markers = [];
+		rotateArrows = new Object(background);
+		rotateArrows.alpha = 0.1;
+
 		highlightCircle = new Graphics(background);
 		highlightCircle.lineStyle(width, 0xBBFFBB, 0.2);
 		highlightCircle.drawCircle(0, 0, radius + width * 0.5);
+
+		deactivate();
+
+		var t = hxd.Res.img.rotateicon.toTile();
+		t.dx = -11;
+		t.dy = -16;
+		var numSegs = 4;
+		if (radius >= 32) {
+			numSegs = 8;
+		}
+
+		if (radius >= 50) {
+			numSegs = 16;
+		}
+
+		for (seg in 0...numSegs) {
+			var a = Math.PI * 2 * (seg / numSegs);
+			var bm = new Bitmap(t, rotateArrows);
+			bm.x = Math.cos(a) * (radius + width * 0.5);
+			bm.y = Math.sin(a) * (radius + width * 0.5);
+			bm.rotation = a - Math.PI * 0.5;
+		}
 
 		boundaryCircle = new Graphics(background);
 		boundaryCircle.lineStyle(2, 0xBBFFBB, 0.1);
@@ -108,6 +134,9 @@ class Lane extends Entity2D {
 				}
 			}
 		}
+		if (rotateArrows.visible) {
+			rotateArrows.rotation += Math.PI * dt * (speed / totalTime);
+		}
 	}
 
 	var threshold = 0.02;
@@ -131,5 +160,12 @@ class Lane extends Entity2D {
 		} else {
 			highlightCircle.alpha = 0.0;
 		}
+	}
+	public function activate() {
+		rotateArrows.visible = true;
+	}
+
+	public function deactivate() {
+		rotateArrows.visible = false;
 	}
 }

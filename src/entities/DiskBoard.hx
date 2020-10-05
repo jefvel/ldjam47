@@ -137,6 +137,8 @@ class DiskBoard extends Entity2D {
 		slowingLane = lanes[index];
 		lanes[index].speed = -0.5;
 
+		slowingLane.activate();
+
 		if (onActivateLane != null) {
 			onActivateLane(slowingLane, true);
 		}
@@ -145,6 +147,7 @@ class DiskBoard extends Entity2D {
 	public function resetSpeeds() {
 		for (l in lanes) {
 			l.speed = 1.0;
+			l.deactivate();
 		}
 
 		if (onActivateLane != null) {

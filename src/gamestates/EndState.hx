@@ -24,17 +24,25 @@ class EndState extends gamestate.GameState {
 	var canLeave = false;
 
 	var totalText:String;
-	var delay = 1.6;
+	var delay = 2.6;
 
 	override function onEnter() {
+		var days = 9213 + Std.int(Math.random() * 600);
 		container = new Object(game.s2d);
 		bg = new Bitmap(Tile.fromColor(0xFFFFFF), container);
+		var number = 1000 + Std.int(Math.random() * 8000);
 
-		totalText = '-------Employee Report-------\n\n';
-		totalText += 'Status: Deceased+Fired\n\nProductivity: 60%\n\nTotal Units Manufactured: $score \n\n';
-		totalText += "Firing Reason:\nMishandling of Company Materiel\n\n";
-		totalText += '--------End of Report--------\n                \n';
-		totalText += 'Have a pleasant day';
+		totalText = '';
+		totalText += '-------Employee Report-------\n';
+		totalText += '---------- ID #$number --------- \n';
+		totalText += 'Productivity: 60%\n\n';
+		totalText += 'Units Manufactured: $score \n\n';
+		totalText += 'Status: Deceased, Fired\n\n';
+		totalText += "Reason of Termination:\nGross Negligent Misconduct\n\n";
+		totalText += 'Total Days Worked: $days \n\n';
+		totalText += '------- End of Report -------\n              \n';
+		totalText += '  - K. Tolemy, \n';
+		totalText += '    Chairman of Stilkov Plant';
 
 		scoreText = new Text(hxd.Res.fonts.equipmentpro_medium_12.toFont(), container);
 		scoreText.textColor = 0x111111;
@@ -49,7 +57,7 @@ class EndState extends gamestate.GameState {
 
 	var elapsed = 0.;
 	var c = 0;
-	var cpl = 0.1;
+	var cpl = 0.08;
 	var finished = false;
 
 	var fast = false;
@@ -80,7 +88,7 @@ class EndState extends gamestate.GameState {
 		l = Std.int(Math.min(totalText.length, l));
 
 		scoreText.text = totalText.substr(0, l);
-		scoreText.y = 40;
+		scoreText.y = Math.floor((game.s2d.height - (scoreText.textHeight + 20)) * 0.5);
 
 		scoreText.x = Math.floor((game.s2d.width - w) * 0.5);
 
@@ -88,9 +96,9 @@ class EndState extends gamestate.GameState {
 			var char = scoreText.text.charAt(c - 1);
 			if (char != ' ' && char != '\n') {
 				if (!fast) {
-					game.sound.playWobble(hxd.Res.sound.key, 0.2, 0.01);
+					game.sound.playWobble(hxd.Res.sound.key, 0.14, 0.01);
 				} else {
-					game.sound.playSfx(hxd.Res.sound.key, 0.1);
+					game.sound.playSfx(hxd.Res.sound.key, 0.07);
 				}
 			}
 		}
@@ -126,7 +134,7 @@ class EndState extends gamestate.GameState {
 			leaving = true;
 			Transition.to(() -> {
 				game.states.setState(new MenuState());
-			}, 1.1);
+			}, 1.8, 1.0);
 		}
 	}
 }

@@ -81,6 +81,11 @@ class PhoneGfx extends Object {
 		stopRinging();
 	}
 
+	override function onRemove() {
+		super.onRemove();
+		stopRinging();
+	}
+
 	public function stopRinging() {
 		ringing = false;
 		if (ringSound != null) {

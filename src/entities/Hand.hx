@@ -16,11 +16,16 @@ class Hand extends Entity2D {
 		gfx = hxd.Res.img.hand_tilesheet.toSprite2D(this);
 		gfx.originX = 113;
 		gfx.originY = 127;
+
 		releasePush();
 	}
 
+	var offsetX = -256;
+	var offsetY = 512;
+
 	var targetX = 0.;
 	var targetY = 0.;
+
 
 	public function push(x:Float, y:Float) {
 		targetX = x - 154;
@@ -40,7 +45,17 @@ class Hand extends Entity2D {
 		targetX = x - 154;
 		targetY = y - 160;
 		gfx.animation.currentFrame = 2;
+		pointing = true;
 	}
+
+	public function stopPointing() {
+		if (pointing) {
+			reset();
+			pointing = false;
+		}
+	}
+
+	var pointing = false;
 
 	public function reset() {
 		gfx.animation.currentFrame = 0;
@@ -50,7 +65,7 @@ class Hand extends Entity2D {
 		targetX = defaultX;
 	}
     
-	public var defaultX = 55 - 113;
+	public var defaultX:Float = 55 - 113;
 
 	public function releasePush() {
 		gfx.animation.currentFrame = 0;
@@ -127,12 +142,13 @@ class Hand extends Entity2D {
 		time += dt;
 		var pTime = Math.min(pressTime / 0.05, 1.0);
 
-		if (!pressing && !dragging) {
-			gfx.x = Math.sin(time * 0.7) * 4;
-            gfx.y = Math.cos(time * 0.4) * 4;
+		if (!pressing && !dragging && !pointing) {
+			gfx.x = Math.sin(time * 0.7) * 4 + offsetX;
+			gfx.y = Math.cos(time * 0.4) * 4;
+
 			if (!phoning) {
-				x += (targetX - x) * 0.2;
-				y += (targetY - y) * 0.16;
+				x += (defaultX - x) * 0.2;
+				y += (defaultY - y) * 0.16;
 			} else {
 				x += (targetX - x) * 0.1;
 			    y += (targetY - y) * 0.06;
@@ -142,12 +158,17 @@ class Hand extends Entity2D {
 			y = targetY - 35 + T.bounceOut(pTime) * 35;
 			gfx.y = 0;
 
-			gfx.x = (Math.sin(time * 500.7) * 1);
+			gfx.x = (Math.sin(time * 500.7) * 1) + offsetX;
 		} else if (dragging) {
 			x = dragX;
 			y = dragY;
 			gfx.y = 0;
-			gfx.x = 0;
-        }
+			gfx.x = 0 + offsetX;
+		} else if (pointing) {
+			gfx.x = Math.sin(time * 0.7) * 4 + offsetX;
+			gfx.y = Math.cos(time * 0.4) * 4;
+			x += (targetX - x) * 0.1;
+			y += (targetY - y) * 0.06;
+		}
 	}
 }

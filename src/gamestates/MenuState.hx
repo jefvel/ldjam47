@@ -18,6 +18,8 @@ class MenuState extends gamestate.GameState {
 		container = new Object(game.s2d);
 		bg = new Bitmap(hxd.Res.img.menubg.toTile(), container);
 		bg.scale(1);
+		bg.tile.dx = -500;
+		bg.tile.dy = -250;
 		var b = bg.getBounds();
 		bg.width = b.width;
 		bg.height = b.height;
@@ -32,8 +34,12 @@ class MenuState extends gamestate.GameState {
 	override function update(dt:Float) {
 		super.update(dt);
 		elapsed += dt;
-		bg.x = (game.s2d.width - bg.width) * 0.5 - 2 + Math.sin(elapsed * 0.1) * 4;
-		bg.y = (game.s2d.height - bg.height) * 0.5 - 3 + Math.cos(elapsed * 0.9) * 6;
+		if (leaving) {
+			bg.scale(1.008);
+		}
+		var b = bg.getBounds();
+		bg.x = (game.s2d.width) * 0.5 - 2 + Math.sin(elapsed * 0.1) * 4;
+		bg.y = (game.s2d.height) * 0.5 - 3 + Math.cos(elapsed * 0.9) * 6;
 
 		enterWork.x = Math.round(game.s2d.width * 0.5);
 		enterWork.y = Math.round(game.s2d.height * 0.3);

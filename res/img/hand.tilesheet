@@ -1,56 +1,56 @@
 { "frames": [
    {
     "filename": "hand 0.aseprite",
-    "frame": { "x": 0, "y": 0, "w": 256, "h": 512 },
+    "frame": { "x": 0, "y": 0, "w": 512, "h": 1024 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 256, "h": 512 },
-    "sourceSize": { "w": 256, "h": 512 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 512, "h": 1024 },
+    "sourceSize": { "w": 512, "h": 1024 },
     "duration": 100
    },
    {
     "filename": "hand 1.aseprite",
-    "frame": { "x": 257, "y": 0, "w": 256, "h": 512 },
+    "frame": { "x": 513, "y": 0, "w": 512, "h": 1024 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 256, "h": 512 },
-    "sourceSize": { "w": 256, "h": 512 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 512, "h": 1024 },
+    "sourceSize": { "w": 512, "h": 1024 },
     "duration": 100
    },
    {
     "filename": "hand 2.aseprite",
-    "frame": { "x": 514, "y": 0, "w": 256, "h": 512 },
+    "frame": { "x": 1026, "y": 0, "w": 512, "h": 1024 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 256, "h": 512 },
-    "sourceSize": { "w": 256, "h": 512 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 512, "h": 1024 },
+    "sourceSize": { "w": 512, "h": 1024 },
     "duration": 100
    },
    {
     "filename": "hand 3.aseprite",
-    "frame": { "x": 0, "y": 513, "w": 256, "h": 512 },
+    "frame": { "x": 0, "y": 1025, "w": 512, "h": 1024 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 256, "h": 512 },
-    "sourceSize": { "w": 256, "h": 512 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 512, "h": 1024 },
+    "sourceSize": { "w": 512, "h": 1024 },
     "duration": 100
    },
    {
     "filename": "hand 4.aseprite",
-    "frame": { "x": 257, "y": 513, "w": 256, "h": 512 },
+    "frame": { "x": 513, "y": 1025, "w": 512, "h": 1024 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 256, "h": 512 },
-    "sourceSize": { "w": 256, "h": 512 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 512, "h": 1024 },
+    "sourceSize": { "w": 512, "h": 1024 },
     "duration": 100
    },
    {
     "filename": "hand 5.aseprite",
-    "frame": { "x": 514, "y": 513, "w": 256, "h": 512 },
+    "frame": { "x": 1026, "y": 1025, "w": 512, "h": 1024 },
     "rotated": false,
     "trimmed": false,
-    "spriteSourceSize": { "x": 0, "y": 0, "w": 256, "h": 512 },
-    "sourceSize": { "w": 256, "h": 512 },
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 512, "h": 1024 },
+    "sourceSize": { "w": 512, "h": 1024 },
     "duration": 100
    }
  ],
@@ -59,7 +59,7 @@
   "version": "1.2.25-x64",
   "image": "hand.png",
   "format": "RGBA8888",
-  "size": { "w": 770, "h": 1025 },
+  "size": { "w": 1538, "h": 2049 },
   "scale": "1",
   "frameTags": [
   ]

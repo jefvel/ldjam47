@@ -1,5 +1,6 @@
 package gamestates;
 
+import hxd.Key;
 import hxd.Res;
 import h2d.Particles;
 import h3d.scene.pbr.Light;
@@ -43,7 +44,9 @@ class PlayState extends gamestate.GameState {
 
 	var meter:Meter;
 
-	var container:h2d.Object;
+	var bg:Bitmap;
+
+	public var container:h2d.Object;
 
 	var hand:Hand;
 	var rightHand:Hand;
@@ -69,6 +72,8 @@ class PlayState extends gamestate.GameState {
 
 	var topBorder:Bitmap;
 	var bottomBorder:Bitmap;
+	var leftBorder:Bitmap;
+	var rightBorder:Bitmap;
 
 	var basketSize = 5;
 
@@ -81,6 +86,9 @@ class PlayState extends gamestate.GameState {
 
 	var overlays:Object;
 
+	public var lightLayer:Object;
+
+
 	override function onEnter() {
 		super.onEnter();
 		current = this;
@@ -88,6 +96,10 @@ class PlayState extends gamestate.GameState {
 		bouncyBoys = [];
 
 		container = new Object(game.s2d);
+
+		bg = new Bitmap(hxd.Res.img.ingamebg.toTile(), container);
+
+		lightLayer = new Object();
 
 		machineBack = new Bitmap(hxd.Res.img.machineback.toTile(), container);
 
@@ -132,8 +144,8 @@ class PlayState extends gamestate.GameState {
 		numberMeter.value = 0;
 
 		warningLamp = new AlarmBeeper(machineBack);
-		warningLamp.x = 321;
-		warningLamp.y = 237;
+		warningLamp.x = 372;
+		warningLamp.y = 32;
 
 		var fx = new hxd.snd.effect.LowPass();
 		fx.gainHF = 0.01;
@@ -189,10 +201,15 @@ class PlayState extends gamestate.GameState {
 			hand.reset();
 		}
 
+
 		overlays = new Object(game.s2d);
+
+		game.s2d.addChild(lightLayer);
 
 		topBorder = new Bitmap(Tile.fromColor(0x030303), overlays);
 		bottomBorder = new Bitmap(Tile.fromColor(0x030303), overlays);
+		leftBorder = new Bitmap(Tile.fromColor(0x030303), overlays);
+		rightBorder = new Bitmap(Tile.fromColor(0x030303), overlays);
 
 		darkness = new Bitmap(Tile.fromColor(0x0b0e1e), overlays);
 		darkness.alpha = 0.;
@@ -225,9 +242,11 @@ class PlayState extends gamestate.GameState {
 		var lightProcess = new Process();
 		var exploded = false;
 		var flash = new Bitmap(Tile.fromColor(0xFEFEFE), overlays);
+		lightLayer.visible = false;
 		lightProcess.updateFn = dt -> {
 			elapsed += dt;
 			if (elapsed > 0.3) {
+				lightLayer.visible = true;
 				flash.remove();
 				if (!exploded) {
 					shake();
@@ -250,13 +269,15 @@ class PlayState extends gamestate.GameState {
 
 	var lastShake:Process;
 
+	var flashChance = 0.5;
 	public function shake() {
-		var doFlash = Math.random() > 0.5;
+		var doFlash = Math.random() < flashChance;
 		var flash:Bitmap = null;
 
 		if (doFlash) {
 			flash = new Bitmap(Tile.fromColor(0xFEFEFE), overlays);
 			flash.alpha = 0.7;
+			lightLayer.visible = false;
 		}
 
 		offsetX = -20 + Math.random() * 40; // 40 - Math.random() * 80;
@@ -278,6 +299,7 @@ class PlayState extends gamestate.GameState {
 				flash.width = game.s2d.width;
 				flash.height = game.s2d.height;
 				if (elapsed > 0.1) {
+					lightLayer.visible = true;
 					flash.remove();
 				}
 			}
@@ -359,6 +381,13 @@ class PlayState extends gamestate.GameState {
 				phone.onRelease();
 			}
 		}
+		#if debug
+		if (e.kind == EKeyDown) {
+			if (e.keyCode == Key.R) {
+				game.states.setState(new PlayState());
+			}
+		}
+		#end
 	}
 
 	var time = 0.0;
@@ -441,20 +470,27 @@ class PlayState extends gamestate.GameState {
 			if (totalExplosions == 2) {
 				radio.destroy();
 				timeToNextMinorExplosion = 4;
+				flashChance = 0.6;
 			}
 
-			if (totalExplosions == 4) {
+			if (totalExplosions == 5) {
 				phone.destroy();
+				initFinish();
 				timeToNextMinorExplosion = 3;
+				flashChance = 0.9;
 			}
-			if (totalExplosions >= 5) {
+			if (totalExplosions == 6) {
+				timeToNextMinorExplosion = 1.0;
+			}
+			if (totalExplosions == 7) {
 				handle.breakable = true;
-				timeToNextMinorExplosion = 1;
+				timeToNextMinorExplosion = 0.9;
 			}
 
 			if (handle.broken) {
 				timeToNextMinorExplosion = 1.;
 			}
+
 			timeMinorExplosion = timeToNextMinorExplosion + Math.random() * 2;
 		}
 	}
@@ -520,7 +556,9 @@ class PlayState extends gamestate.GameState {
 			rightHand.stopDrag();
 		}
 
-		rightHand.defaultX = game.s2d.width + 40;
+		rightHand.defaultX = machineBack.x + machineBack.tile.width + 120;
+		hand.defaultX = machineBack.x - 100;
+		bg.x = machineBack.x - 150;
 
 		time += dt;
 		machineBack.y = Math.max(40, game.s2d.height * 0.15);
@@ -582,9 +620,19 @@ class PlayState extends gamestate.GameState {
 
 		if (adjustingRadio) {
 			hand.point(radio.x + radio.bm.x + 20 + Math.random() * 5, radio.y + radio.bm.y + 50 + Math.random() * 5);
+		} else {
+			hand.stopPointing();
 		}
 
 		radio.y = machineBack.y - 70;
+
+		leftBorder.height = game.s2d.height;
+		leftBorder.width = game.s2d.width * 0.4;
+		leftBorder.x = machineBack.x - leftBorder.width - 100;
+
+		rightBorder.height = game.s2d.height;
+		rightBorder.width = game.s2d.width * 0.4;
+		rightBorder.x = machineBack.x + machineBack.tile.width + 100;
 
 		bottomBorder.width = game.s2d.width;
 		bottomBorder.height = 400;
@@ -610,6 +658,9 @@ class PlayState extends gamestate.GameState {
 
 		container.x += offsetX;
 		container.y += offsetY;
+
+		lightLayer.x = container.x;
+		lightLayer.y = container.y;
 
 		basketFull = bouncyBoys.length >= basketSize;
 		warningLamp.activated = basketFull;
@@ -638,6 +689,7 @@ class PlayState extends gamestate.GameState {
 			alarmSound.stop();
 			alarmSound = null;
 		}
+		radio.stop();
 	}
 
 	var numEmits = 0;
