@@ -172,6 +172,7 @@ class PlayState extends gamestate.GameState {
 				idleSound = game.sound.playSfx(hxd.Res.sound.phoneempty, 0.2, true);
 			} else {
 				phoneDialogue.MakeCall();
+				chatterSound = game.sound.playWobble(hxd.Res.sound.chatter, 0.3, 0.04, true);
 			}
 
 			phone.stopRinging();
@@ -180,6 +181,11 @@ class PlayState extends gamestate.GameState {
 		phone.onRelease = () -> {
 			if (phoneDialogue.StopCall() && !phone.ringing) {
 				phone.startRinging();
+			}
+
+			if (chatterSound != null) {
+				chatterSound.stop();
+				chatterSound = null;
 			}
 
 			if (adjustingRadio) {
@@ -225,6 +231,8 @@ class PlayState extends gamestate.GameState {
 		emergencyLight.alpha = 0;
 		phoneDialogue = new PhoneDialogue(overlays);
 	}
+
+	var chatterSound:Channel;
 
 	var lightsBroken = false;
 
@@ -701,6 +709,10 @@ class PlayState extends gamestate.GameState {
 			alarmSound = null;
 		}
 		radio.stop();
+		if (chatterSound != null) {
+			chatterSound.stop();
+			chatterSound = null;
+		}
 	}
 
 	var numEmits = 0;
