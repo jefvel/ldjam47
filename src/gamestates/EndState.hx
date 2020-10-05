@@ -37,8 +37,7 @@ class EndState extends gamestate.GameState {
 		totalText += '---------- ID #$number --------- \n';
 		totalText += 'Productivity: 60%\n\n';
 		totalText += 'Units Manufactured: $score \n\n';
-		totalText += 'Status: Deceased\n\n';
-		totalText += '        Posthumously Discharged\n\n';
+		totalText += 'Status: Deceased, Fired\n\n';
 		totalText += "Reason of Termination:\nGross Negligent Misconduct\n\n";
 		totalText += 'Total Days Worked: $days \n\n';
 		totalText += '------- End of Report -------\n              \n';
