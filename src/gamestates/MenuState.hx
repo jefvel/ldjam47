@@ -90,9 +90,10 @@ class MenuState extends gamestate.GameState {
 
 		if (e.kind == EPush) {
 			leaving = true;
+			game.sound.playSfx(hxd.Res.sound.start, 0.3);
 			Transition.to(() -> {
 				game.states.setState(new PlayState());
-			});
+			}, 1.2, 0.4);
 		}
 	}
 }
