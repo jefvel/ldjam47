@@ -36,13 +36,17 @@ class PhoneGfx extends Object {
 		}
 
 		i.onRelease = e -> {
-			if (pushed) {
-                if (onRelease != null) {
-                    onRelease();
-                }
-            }
-			pushed = false;
+			this.release();
 		}
+	}
+
+	public function release() {
+		if (pushed) {
+			if (onRelease != null) {
+				onRelease();
+			}
+		}
+		pushed = false;
 	}
 
 	public var ringing = false;

@@ -37,7 +37,7 @@ class PlayState extends gamestate.GameState {
 	var pay:Pay;
 
 	var phoneDialogue:PhoneDialogue;
-	var phoneTimer = 5.;
+	var phoneTimer = 6.;
 	var phoneStressFactor = 1.;
 
 	var board:DiskBoard;
@@ -389,6 +389,10 @@ class PlayState extends gamestate.GameState {
 	var adjustingRadio = false;
 
 	function onActivateLane(lane:Lane, activated) {
+		if (adjustingRadio) {
+			return;
+		}
+
 		if (activated) {
 			var p = buttons.getButtonPos(lane.index);
 			hand.push(p.x, p.y);
@@ -409,6 +413,10 @@ class PlayState extends gamestate.GameState {
 	}
 
 	function onPressButton(index) {
+		if (adjustingRadio) {
+			return;
+		}
+
 		board.slowLane(index);
 	}
 
@@ -554,6 +562,7 @@ class PlayState extends gamestate.GameState {
 			}
 			if (totalExplosions == 6) {
 				timeToNextMinorExplosion = 1.4;
+				handle.breakable = true;
 				if (didFlash && !machineFire.visible) {
 					machineFire.visible = true;
 					machineFire.animation.play();
@@ -562,7 +571,6 @@ class PlayState extends gamestate.GameState {
 				}
 			}
 			if (totalExplosions == 7) {
-				handle.breakable = true;
 				timeToNextMinorExplosion = 0.9;
 
 				if (!machineFire.visible) {

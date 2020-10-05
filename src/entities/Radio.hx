@@ -28,7 +28,11 @@ class Radio extends Object {
 		}
 
 		fx = new hxd.snd.effect.LowPass();
+		#if js
+		fx.gainHF = 0.24;
+		#else
 		fx.gainHF = 0.04;
+		#end
 		music = Game.getInstance().sound.playMusic(hxd.Res.music.music1, 0.0, .1);
 	}
 

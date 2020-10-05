@@ -1,5 +1,6 @@
 package entities;
 
+import gamestates.PlayState;
 import h2d.RenderContext;
 import graphics.Sprite;
 import h2d.Text;
@@ -153,13 +154,13 @@ class PhoneDialogue extends Entity2D {
                 ManagerCallGreetingAngryA + Math.round(Math.random() * (ManagerCallGreetingAngryMax - ManagerCallGreetingAngryA - 1))
             ];
             
-            progress.totalTime -= duration[0];
+			// progress.totalTime -= duration[0];
             duration[0] = (durationPerCharacter * texts[0].length) / 1000;
             var min = minTalkDuration / 1000;
             if (duration[0] < min) {
                 duration[0] = min;
             }
-            progress.totalTime += duration[0];
+			// progress.totalTime += duration[0];
         } else {
             duration = new Array<Float>();
             var greeting = [
@@ -182,7 +183,7 @@ class PhoneDialogue extends Entity2D {
                         duration[i] = min;
                     }
     
-                    progress.totalTime += duration[i];
+					// progress.totalTime += duration[i];
                 }
             }
         }
@@ -233,6 +234,7 @@ class PhoneDialogue extends Entity2D {
                 if (currentText >= texts.length) {
                     isFinished = true;
                     visible = false;
+					PlayState.current.phone.release();
                     return;
                 }
     

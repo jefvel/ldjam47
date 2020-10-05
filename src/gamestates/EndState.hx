@@ -31,11 +31,12 @@ class EndState extends gamestate.GameState {
 		container = new Object(game.s2d);
 		bg = new Bitmap(Tile.fromColor(0xFFFFFF), container);
 		var number = 1000 + Std.int(Math.random() * 8000);
+		var productivity = 45 + Std.int(Math.random() * 55);
 
 		totalText = '';
 		totalText += '-------Employee Report-------\n';
 		totalText += '---------- ID #$number --------- \n';
-		totalText += 'Productivity: 60%\n\n';
+		totalText += 'Productivity: $productivity%\n\n';
 		totalText += 'Units Manufactured: $score \n\n';
 		totalText += 'Status: Deceased, Fired\n\n';
 		totalText += "Reason of Termination:\nGross Negligent Misconduct\n\n";

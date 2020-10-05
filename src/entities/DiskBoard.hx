@@ -116,7 +116,7 @@ class DiskBoard extends Entity2D {
 	var slowingLane = null;
 	
 	public function slam() {
-		var slamCount = 3;
+		var slamCount = 1;
 		for (l in lanes) {
 			for (m in l.markers) {
 				if (m.flying)

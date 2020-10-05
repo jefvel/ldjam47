@@ -10,7 +10,7 @@ class DialogProgress extends Entity2D {
 
 	var radius = 9.;
 
-	public var totalTime:Float;
+	public var totalTime:Float = 1.3;
 	var currentTime = 0.;
 	var started = false;
 
@@ -18,7 +18,8 @@ class DialogProgress extends Entity2D {
 		super(parent);
 		gfx = new Graphics(this);
 
-		filter = new h2d.filter.DropShadow(0, 0, 0x333333);
+		filter = new h2d.filter.DropShadow(2, Math.PI * 0.25, 0x333333);
+		// filter = new h2d.filter.Outline(1, 0xFF333333, 0.3);
 	}
 
 	override function update(dt:Float) {
@@ -41,7 +42,7 @@ class DialogProgress extends Entity2D {
 		Game.getInstance().sound.playWobble(hxd.Res.sound.progressfinish, 0.2);
 	}
 
-	var doneTimeMax = 0.2;
+	var doneTimeMax = 0.4;
 	var doneTime = 0.0;
 
 	public var done = false;
@@ -56,15 +57,15 @@ class DialogProgress extends Entity2D {
 		gfx.clear();
 
 		if (done) {
-			gfx.beginFill(0x71e322);
+			gfx.beginFill(0x33c329);
 		} else {
-			gfx.beginFill(0xfefefe);
+			gfx.beginFill(0xbd2222);
 		}
 
 		if (done) {
 			doneTime += ctx.elapsedTime;
 			doneTime = Math.min(doneTime, doneTimeMax);
-			gfx.setScale(1 + T.bounceOut(doneTime / doneTimeMax) * 0.2);
+			gfx.setScale(1 + T.bounceOut(doneTime / doneTimeMax) * 0.4);
 		} else {
 			gfx.setScale(1);
 		}
