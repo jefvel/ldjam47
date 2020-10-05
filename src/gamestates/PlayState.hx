@@ -590,7 +590,7 @@ class PlayState extends gamestate.GameState {
 		g.life = 0.7;
 		g.lifeRand = 0.7;
 		g.emitLoop = false;
-		g.nparts = 7;
+		g.nparts = 24;
 		// g.
 		particles.addGroup(g);
 		particles.x = x;
