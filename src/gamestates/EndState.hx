@@ -24,13 +24,14 @@ class EndState extends gamestate.GameState {
 	var canLeave = false;
 
 	var totalText:String;
-	var delay = 1.5;
+	var delay = 1.6;
 
 	override function onEnter() {
 		container = new Object(game.s2d);
 		bg = new Bitmap(Tile.fromColor(0xFFFFFF), container);
 
-		totalText = 'Employee Report\n\nStatus: Deceased/Fired\n\nProductivity: 60%\n\nTotal Units Manufactured: $score \n\n';
+		totalText = '-------Employee Report-------\n\n';
+		totalText += 'Status: Deceased+Fired\n\nProductivity: 60%\n\nTotal Units Manufactured: $score \n\n';
 		totalText += "Firing Reason:\nMishandling of Company Materiel\n\n";
 		totalText += '--------End of Report--------\n                \n';
 		totalText += 'Have a pleasant day';
@@ -125,7 +126,7 @@ class EndState extends gamestate.GameState {
 			leaving = true;
 			Transition.to(() -> {
 				game.states.setState(new MenuState());
-			});
+			}, 1.1);
 		}
 	}
 }

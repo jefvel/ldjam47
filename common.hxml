@@ -17,7 +17,7 @@
 # Configuration
 ###
 
--D windowTitle=GameBase
+-D windowTitle=Hands on Work
 -D windowSize=1280x720
 
 # Uncomment if you want a static sized window

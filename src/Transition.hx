@@ -90,8 +90,8 @@ class Transition extends Interactive {
 		parent.addChild(this);
 	}
 
-	var inTime = .5;
-	var outTime = .6;
+	public var inTime = .5;
+	public var outTime = .6;
 
 	var t = 0.0;
 
@@ -163,8 +163,10 @@ class Transition extends Interactive {
 		scalingOut = true;
 	}
 
-	public static function to(onFinish:Void->Void) {
+	public static function to(onFinish:Void->Void, inTime = 0.5, outTime = 0.6) {
 		var t = new Transition(Game.getInstance().s2d);
+		t.inTime = inTime;
+		t.outTime = outTime;
 		t.show(onFinish);
 		return t;
 	}
