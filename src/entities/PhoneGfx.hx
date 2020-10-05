@@ -55,7 +55,7 @@ class PhoneGfx extends Object {
 		super.sync(ctx);
 		time += ctx.elapsedTime;
 		if (ringing) {
-			bm.x = Math.sin(time * 100);
+			bm.x = -24 + Math.sin(time * 100);
 		}
 	}
 
