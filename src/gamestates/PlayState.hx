@@ -459,9 +459,6 @@ class PlayState extends gamestate.GameState {
 				}
 				machineryBreakSound = game.sound.playSfx(hxd.Res.sound.machineryberak, 0.0, true);
 				machineryBreakSound.fadeTo(0.3, 1.0);
-
-				emitSparksAmbient(1, 0.1 * game.s2d.width / 2, -0.25 * game.s2d.height / 2);
-				emitSmoke(machineBack.x - machineBack.width*0.5, machineBack.y + machineBack.height*0.9);
 			}
 		} else {
 			if (machineryBreakSound != null) {
@@ -488,9 +485,6 @@ class PlayState extends gamestate.GameState {
 			if (lightsBroken) {
 				checkExplosions(dt);
 			}
-
-			emitSparksAmbient(2, 0.25 * game.s2d.width / 2, 0.25 * game.s2d.height / 2);
-			emitSmoke(machineBack.x + machineBack.width*0.7, machineBack.y + machineBack.height*0.9);
 		} else {
 			if (alarmSound != null && !lightsBroken) {
 				var snd = alarmSound;
@@ -505,6 +499,7 @@ class PlayState extends gamestate.GameState {
 	var timeMinorExplosion = 5.0;
 	var timeToNextMinorExplosion = 5.0;
 
+	var emits = 0;
 	public function checkExplosions(dt:Float) {
 		timeMinorExplosion -= dt;
 		if (timeMinorExplosion < 0) {
@@ -522,6 +517,12 @@ class PlayState extends gamestate.GameState {
 				radio.destroy();
 				timeToNextMinorExplosion = 4;
 				flashChance = 0.6;
+				
+				emitSparksAmbient(1, 0.1 * game.s2d.width / 2, -0.25 * game.s2d.height / 2);
+			}
+
+			if (totalExplosions == 3) {
+				emitSmoke(machineBack.x - machineBack.width*0.5, machineBack.y + machineBack.height*0.9);
 			}
 
 			if (totalExplosions == 5) {
@@ -529,12 +530,15 @@ class PlayState extends gamestate.GameState {
 				initFinish();
 				timeToNextMinorExplosion = 3;
 				flashChance = 0.9;
+				emitSparksAmbient(2, 0.25 * game.s2d.width / 2, 0.25 * game.s2d.height / 2);
 			}
 			if (totalExplosions == 6) {
 				timeToNextMinorExplosion = 1.4;
 				if (didFlash && !machineFire.visible) {
 					machineFire.visible = true;
 					machineFire.animation.play();
+					emitSparksAmbient(2, 0.25 * game.s2d.width / 2, 0.25 * game.s2d.height / 2);
+					emitSmoke(machineBack.x + machineBack.width*0.7, machineBack.y + machineBack.height*0.9);
 				}
 			}
 			if (totalExplosions == 7) {
@@ -542,8 +546,10 @@ class PlayState extends gamestate.GameState {
 				timeToNextMinorExplosion = 0.9;
 				
 				if (!machineFire.visible) {
+					flash();
 					machineFire.visible = true;
 					machineFire.animation.play();
+					emitSmoke(machineBack.x + machineBack.width*0.7, machineBack.y + machineBack.height*0.9);
 				}
 			}
 
@@ -803,7 +809,7 @@ class PlayState extends gamestate.GameState {
 		g.speedRand = 0.2;
 		g.life = 0.7;
 		g.lifeRand = 0.7;
-		g.nparts = 18;
+		g.nparts = 16;
 		g.life = 15;
 		g.sizeIncr = 0.2;
 		
