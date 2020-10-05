@@ -10,7 +10,7 @@ class DialogProgress extends Entity2D {
 
 	var radius = 9.;
 
-	var totalTime = 1.2;
+	public var totalTime:Float;
 	var currentTime = 0.;
 	var started = false;
 
