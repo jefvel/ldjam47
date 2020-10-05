@@ -1,5 +1,7 @@
 package gamestates;
 
+import hxd.Res;
+import h2d.Particles;
 import h3d.scene.pbr.Light;
 import entities.AlarmBeeper;
 import hxd.Perlin;
@@ -36,6 +38,8 @@ class PlayState extends gamestate.GameState {
 	var phoneStressFactor = 1.;
 
 	var board:DiskBoard;
+
+	var sparks:Particles;
 
 	var meter:Meter;
 
@@ -186,8 +190,6 @@ class PlayState extends gamestate.GameState {
 			adjustingRadio = false;
 			hand.reset();
 		}
-
-		// phone.startRinging();
 
 		overlays = new Object(game.s2d);
 
@@ -348,6 +350,8 @@ class PlayState extends gamestate.GameState {
 				}
 				machineryBreakSound = game.sound.playSfx(hxd.Res.sound.machineryberak, 0.0, true);
 				machineryBreakSound.fadeTo(0.3, 1.0);
+				
+				emitSparksAmbient(1, 0.1*game.s2d.width/2, -0.25*game.s2d.height/2);
 			}
 		} else {
 			if (machineryBreakSound != null) {
@@ -374,6 +378,8 @@ class PlayState extends gamestate.GameState {
 			if (lightsBroken) {
 				checkExplosions(dt);
 			}
+				
+			emitSparksAmbient(2, 0.25*game.s2d.width/2, 0.25*game.s2d.height/2);
 		} else {
 			if (alarmSound != null) {
 				var snd = alarmSound;
@@ -560,5 +566,37 @@ class PlayState extends gamestate.GameState {
 	// advancing game stress in single function
 	function advanceStressFactor() {
 		phoneStressFactor *= 0.8;
+	}
+
+	var numEmits = 0;
+	public function emitSparksAmbient(numEmitsCap:Int, x:Float, y:Float) {
+		if (numEmits >= numEmitsCap) {
+			return;
+		}
+
+		var sparkImg = Res.img.spark1.toTexture();
+		var particles = new Particles(board);
+		var g = new ParticleGroup(particles);
+
+		g.texture = sparkImg;
+		g.sizeRand = 0.8;
+		g.emitMode = Cone;
+		g.rotSpeed = 3;
+		g.rotSpeedRand = 0.2;
+		g.speedRand = 0.7;
+		g.speed = 100;
+		g.speedRand = 3;
+		g.gravity = 100;
+		g.speedRand *= 3;
+		g.life = 0.7;
+		g.lifeRand = 0.7;
+		g.emitLoop = false;
+		g.nparts = 7;
+		// g.
+		particles.addGroup(g);
+		particles.x = x;
+		particles.y = y;
+
+		numEmits++;
 	}
 }

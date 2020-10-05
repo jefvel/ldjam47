@@ -140,7 +140,7 @@ class PhoneDialogue extends Entity2D {
         var picked = [ -1 -1 -1 ];
         var randomPick = Math.floor(Math.random() * mainCall.length - 0.0001);
         var i = 0;
-        while (picked[0] != randomPick && picked[1] != randomPick && picked[2] != randomPick && scrambledMainCall.length != mainCall.length) {
+        while ((picked[0] != randomPick || picked[1] != randomPick || picked[2] != randomPick) && scrambledMainCall.length != mainCall.length) {
             scrambledMainCall.push(mainCall[randomPick]);
             randomPick = Math.floor(Math.random() * mainCall.length - 0.0001);
             picked[i] = randomPick;

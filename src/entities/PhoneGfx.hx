@@ -1,5 +1,7 @@
 package entities;
 
+import hxd.Res;
+import h2d.Particles;
 import gamestates.PlayState;
 import h2d.RenderContext;
 import h2d.Interactive;

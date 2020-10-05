@@ -5,6 +5,7 @@ import graphics.Sprite;
 import hxd.Res;
 import h2d.col.Point;
 import h2d.RenderContext;
+import h2d.Particles;
 import entities.Lane.LaneMarker;
 import h2d.Bitmap;
 import h2d.Object;
